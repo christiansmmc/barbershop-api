@@ -3,8 +3,12 @@ from flask import Flask
 
 db = SQLAlchemy()
 
+
 def init_app(app: Flask):
     db.init_app(app)
     app.db = db
-    
-    # importar moddels
+
+    from app.models.barber_shop_model import Barber_shop
+    from app.models.address import Address
+    from app.models.barbers import Barbers
+    from app.models.client import Client
