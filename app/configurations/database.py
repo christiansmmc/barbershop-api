@@ -13,3 +13,4 @@ def init_app(app: Flask):
     from app.models.barbers import Barbers
     from app.models.client import Client
     from app.models.services import Services
+    from app.models.appointments import Appointments
