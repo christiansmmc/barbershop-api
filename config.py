@@ -5,6 +5,7 @@ from os import getenv
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_SORT_KEYS = False
+    JWT_SECRET_KEY = getenv("SECRET_KEY")
 
 
 class DevelopmentConfig(Config):
@@ -16,8 +17,8 @@ class TestConfig(Config):
 
 
 config_selector = {
-    'development': DevelopmentConfig,
-    'test': TestConfig,    
+    "development": DevelopmentConfig,
+    "test": TestConfig,
 }
 
 
