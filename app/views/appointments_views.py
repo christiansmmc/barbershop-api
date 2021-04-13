@@ -5,7 +5,7 @@ bp_appointments = Blueprint("appointments_views", __name__, url_prefix="/appoint
 
 @bp_appointments.route('/<int:barbershop_id>', methods=['GET'], )
 def all_appointments(barbershop_id):
-    # query = f"""SELECT * FROM appointments WHERE barber_id = {str(barbershop_id)}"""
+    query = f"""SELECT * FROM appointments WHERE barber_id = {str(barbershop_id)}"""
 
     return str(barbershop_id),201
 
