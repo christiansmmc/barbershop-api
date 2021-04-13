@@ -8,6 +8,9 @@ class Appointments(db.Model):
     barber_id = db.Column(
         db.Integer, db.ForeignKey("barbers.id", onupdate='CASCADE', ondelete='CASCADE'), nullable=False, unique=False
     )
+    barber_shop_id = db.Column(
+        db.Integer, db.ForeignKey("barber_shop.id"), nullable=False, unique=False
+    )
     services_id = db.Column(
         db.Integer, db.ForeignKey("services.id", onupdate='CASCADE', ondelete='CASCADE'), nullable=False, unique=False
     )
