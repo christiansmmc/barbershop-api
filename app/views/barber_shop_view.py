@@ -47,7 +47,6 @@ def create_barber_shop():
         password=request_data["password"],
         user_type="barber_shop",
     )
-
     session.add(barber_shop)
     session.commit()
 
@@ -74,7 +73,6 @@ def create_barber_shop():
     access_token = create_access_token(
         identity=request_data["email"], additional_claims=additional_claims
     )
-
     return {
         "Data": barber_shop_serialized,
         "access_token": access_token,
