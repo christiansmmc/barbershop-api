@@ -48,7 +48,6 @@ def register_barber_shop():
         password=request_data["password"],
         user_type="barber_shop",
     )
-
     session.add(barber_shop)
     session.commit()
 
