@@ -11,4 +11,4 @@ class Barber_shop(db.Model):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(120), nullable=False, unique=False)
     user_type = db.Column(db.String(30), nullable=False, unique=False)
-    # address_list = db.relationship("address", backref="barber_shop")
+    address_list = db.relationship("Address", backref="barber_shop")
