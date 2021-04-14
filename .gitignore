@@ -51,6 +51,8 @@ coverage.xml
 .pytest_cache/
 .gitignore
 cover/
+.idea
+.vscode
 
 # Translations
 *.mo
