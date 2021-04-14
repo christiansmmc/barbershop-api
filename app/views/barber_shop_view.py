@@ -95,19 +95,25 @@ def delete_barber_shop(barber_shop_id):
 
 @bp_barber_shop.route("/login", methods=["POST"])
 def login_barber_shop():
-
     request_data = request.get_json()
 
     user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
 
-    if (
-        user_to_login.email == request_data["email"]
-        and user_to_login.password == request_data["password"]
-    ):
+    if user_to_login != None:
 
-        additional_claims = {"user_type": "barber_shop", "user_id": user_to_login.id}
-        access_token = create_access_token(
-            identity=request_data["email"], additional_claims=additional_claims
-        )
+        if (
+            user_to_login.email == request_data["email"]
+            and user_to_login.password == request_data["password"]
+        ):
 
-    return {"Acess token": access_token}, HTTPStatus.CREATED
+            additional_claims = {
+                "user_type": "barber_shop",
+                "user_id": user_to_login.id,
+            }
+            access_token = create_access_token(
+                identity=request_data["email"], additional_claims=additional_claims
+            )
+
+            return {"Acess token": access_token}, HTTPStatus.CREATED
+
+    return {"Data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
