@@ -40,3 +40,38 @@ def create_address(barber_shop_id):
 
     else:
         return {"Data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
+
+
+@bp_address.route("/<int:address_id>", methods=["DELETE"])
+@jwt_required()
+def delete_address(address_id):
+    current_user = get_jwt()
+
+    address_to_delete = Address.query.filter_by(id=address_id).first()
+
+    if address_to_delete != None:
+
+        if (
+            current_user["user_id"] == address_to_delete.barber_shop_id
+            and current_user["user_type"] == "barber_shop"
+        ):
+
+            session = current_app.db.session
+            Address.query.filter_by(id=address_id).delete()
+            session.commit()
+
+            return {}, HTTPStatus.NO_CONTENT
+
+    return {"Data": "Wrong address ID"}, HTTPStatus.NOT_FOUND
+
+
+@bp_address.route("/<int:barbershop_id>", methods=["GET"])
+def address(barbershop_id):
+
+    addresses_from_barbershop = Address.query.filter_by(barber_shop_id=barbershop_id)
+
+    addresses_serialized = [
+        AddressSchema().dump(address) for address in addresses_from_barbershop
+    ]
+
+    return {"Data": addresses_serialized}, HTTPStatus.OK
