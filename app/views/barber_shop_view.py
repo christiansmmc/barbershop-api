@@ -5,7 +5,6 @@ from app.models.address import Address
 from app.serializers.barber_shop_serializer import BarberSchema
 from app.serializers.address_serializer import AddressSchema
 from flask import jsonify
-
 from flask_jwt_extended import get_jwt
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import create_access_token
@@ -26,14 +25,16 @@ def barber_shop():
         barber_shop_serialized = BarberSchema().dump(barber_shop)
         address_serialized = AddressSchema().dump(barber_shop.address_list[0])
 
-        barber_shop_serialized["address"] = address_serialized
+        barber_shop_serialized["address"] = [
+            AddressSchema().dump(a) for a in barber_shop.address_list
+        ]
         all_barbers_shop.append(barber_shop_serialized)
 
     return {"Barber shops": all_barbers_shop}
 
 
 @bp_barber_shop.route("/register", methods=["POST"])
-def create_barber_shop():
+def register_barber_shop():
 
     session = current_app.db.session
 
@@ -50,38 +51,32 @@ def create_barber_shop():
     session.add(barber_shop)
     session.commit()
 
-    session = current_app.db.session
-
-    address = Address(
-        barber_shop_id=barber_shop.id,
-        state=request_data["address"]["state"],
-        city=request_data["address"]["city"],
-        street_name=request_data["address"]["street_name"],
-        building_number=request_data["address"]["building_number"],
-        zip_code=request_data["address"]["zip_code"],
-    )
-
-    session.add(address)
-    session.commit()
-
     barber_shop_serialized = BarberSchema().dump(barber_shop)
-    address_serializer = AddressSchema().dump(address)
 
-    barber_shop_serialized["address"] = address_serializer
+    if "address" in request_data:
 
-    additional_claims = {"user_type": "barber_shop", "user_id": barber_shop.id}
-    access_token = create_access_token(
-        identity=request_data["email"], additional_claims=additional_claims
-    )
-    return {
-        "Data": barber_shop_serialized,
-        "access_token": access_token,
-    }, HTTPStatus.CREATED
+        address = Address(
+            barber_shop_id=barber_shop.id,
+            state=request_data["address"]["state"],
+            city=request_data["address"]["city"],
+            street_name=request_data["address"]["street_name"],
+            building_number=request_data["address"]["building_number"],
+            zip_code=request_data["address"]["zip_code"],
+        )
+
+        session.add(address)
+        session.commit()
+
+        address_serializer = AddressSchema().dump(address)
+
+        barber_shop_serialized["address"] = address_serializer
+
+    return {"Data": barber_shop_serialized}, HTTPStatus.CREATED
 
 
 @bp_barber_shop.route("/<int:barber_shop_id>", methods=["DELETE"])
 @jwt_required()
-def protected(barber_shop_id):
+def delete_barber_shop(barber_shop_id):
     current_user = get_jwt()
 
     if (
@@ -96,3 +91,23 @@ def protected(barber_shop_id):
         return {"Data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@bp_barber_shop.route("/login", methods=["POST"])
+def login_barber_shop():
+
+    request_data = request.get_json()
+
+    user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
+
+    if (
+        user_to_login.email == request_data["email"]
+        and user_to_login.password == request_data["password"]
+    ):
+
+        additional_claims = {"user_type": "barber_shop", "user_id": user_to_login.id}
+        access_token = create_access_token(
+            identity=request_data["email"], additional_claims=additional_claims
+        )
+
+    return {"Acess token": access_token}, HTTPStatus.CREATED
