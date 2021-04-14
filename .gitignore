@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.gitignore
+.vscode
+.idea
 
 # C extensions
 *.so
@@ -49,7 +52,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-.gitignore
 cover/
 .idea
 .vscode

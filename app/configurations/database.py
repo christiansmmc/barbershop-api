@@ -1,11 +1,15 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
+from flask_jwt_extended import JWTManager
 
 
 db = SQLAlchemy()
 
 
 def init_app(app: Flask):
+
+    jwt = JWTManager(app)
+
     db.init_app(app)
     app.db = db
 
