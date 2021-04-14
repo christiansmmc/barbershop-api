@@ -86,11 +86,12 @@ def delete_barber_shop(barber_shop_id):
         session = current_app.db.session
         Barber_shop.query.filter_by(id=barber_shop_id).delete()
         session.commit()
+        return {}, HTTPStatus.NO_CONTENT
 
     else:
         return {"Data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
-    return {}, HTTPStatus.NO_CONTENT
+    return {"Data": "Wrong barbershop ID"}, HTTPStatus.NOT_FOUND
 
 
 @bp_barber_shop.route("/login", methods=["POST"])
