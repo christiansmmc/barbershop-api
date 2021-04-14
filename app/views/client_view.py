@@ -14,9 +14,10 @@ def create_client():
     email = data.get("email")
     password = data.get("password")
     phone_number = data.get("phone_number")
+    user_type = 'client'
 
     new_client = Client(
-        name=name, email=email, password=password, phone_number=phone_number
+        name=name, email=email, password=password, phone_number=phone_number, user_type=user_type
     )
 
     session.add(new_client)
