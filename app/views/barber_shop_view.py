@@ -5,9 +5,7 @@ from app.models.address import Address
 from app.serializers.barber_shop_serializer import BarberSchema
 from app.serializers.address_serializer import AddressSchema
 from flask import jsonify
-from flask_jwt_extended import get_jwt
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt, jwt_required, create_access_token
 
 
 bp_barber_shop = Blueprint("bp_barber_shop", __name__, url_prefix="/barber_shop")
@@ -18,19 +16,23 @@ def barber_shop():
 
     all_barbers_shop_db = Barber_shop.query.all()
 
-    all_barbers_shop = []
+    if all_barbers_shop_db:
 
-    for barber_shop in all_barbers_shop_db:
+        all_barbershops = []
 
-        barber_shop_serialized = BarberSchema().dump(barber_shop)
-        address_serialized = AddressSchema().dump(barber_shop.address_list[0])
+        for barber_shop in all_barbers_shop_db:
 
-        barber_shop_serialized["address"] = [
-            AddressSchema().dump(a) for a in barber_shop.address_list
-        ]
-        all_barbers_shop.append(barber_shop_serialized)
+            barber_shop_serialized = BarberSchema().dump(barber_shop)
 
-    return {"Barber shops": all_barbers_shop}
+            barber_shop_serialized["address"] = [
+                AddressSchema().dump(a) for a in barber_shop.address_list
+            ]
+
+            all_barbershops.append(barber_shop_serialized)
+
+        return {"Data": all_barbershops}
+
+    return {}, HTTPStatus.NO_CONTENT
 
 
 @bp_barber_shop.route("/register", methods=["POST"])
@@ -48,6 +50,7 @@ def register_barber_shop():
         password=request_data["password"],
         user_type="barber_shop",
     )
+
     session.add(barber_shop)
     session.commit()
 
