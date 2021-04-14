@@ -115,6 +115,9 @@ def login_barber_shop():
                 identity=request_data["email"], additional_claims=additional_claims
             )
 
-            return {"Acess token": access_token}, HTTPStatus.CREATED
+            return {
+                "Barber ID": user_to_login.id,
+                "Acess token": access_token,
+            }, HTTPStatus.CREATED
 
     return {"Data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
