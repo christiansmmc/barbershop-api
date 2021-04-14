@@ -2,8 +2,7 @@ from flask import Blueprint, request, current_app
 from http import HTTPStatus
 from app.models.address import Address
 from app.serializers.address_serializer import AddressSchema
-from flask_jwt_extended import get_jwt
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt, jwt_required
 
 
 bp_address = Blueprint("bp_address", __name__, url_prefix="/address")
