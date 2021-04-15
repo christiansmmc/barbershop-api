@@ -11,3 +11,4 @@ class Barbers(db.Model):
     )
     name = db.Column(db.String(40), nullable=False, unique=False)
     service_list = db.relationship("Services", backref="barbers")
+    user_type = db.Column(db.String(30), nullable=False, unique=False)

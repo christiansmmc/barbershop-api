@@ -75,13 +75,13 @@ def barber_appointments(barbershop_id, id_barber):
 @jwt_required()
 def create_appointment():
     current_user = get_jwt()
-    session = current_app.db.session
-
     data = request.get_json()
 
     if (
         current_user["user_type"] == "client"
     ):
+        session = current_app.db.session
+
         result = Services.query.filter_by(id=data["services_id"]).first()
 
         appointment = Appointments(
@@ -95,48 +95,47 @@ def create_appointment():
         session.add(appointment)
         session.commit()
 
-        serialized = AppointmentsSchema().dump(appointment)
-
-        return {"data": {"date":appointment["date_time"], "service": result.service_name, "price": result.service_price}}, HTTPStatus.CREATED
+        return {"data": {"date": appointment.date_time, "service": result.service_name, "price": result.service_price}}, HTTPStatus.CREATED
     
     else:
         return {"data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
-@bp_appointments.route('', methods=['PATCH'])
+
+@bp_appointments.route('/<int:appointment_id>', methods=['PATCH'])
 @jwt_required()
-def update_appointment():
+def update_appointment(appointment_id):
     current_user = get_jwt()
     body = request.get_json()
     session = current_app.db.session
-    result = Appointments.query.filter_by(id=body["appointment_id"]).first()
+    result = Appointments.query.filter_by(id=appointment_id).first()
 
     if (
         current_user["user_id"] == result.client_id
         and current_user["user_type"] == "client"
     ):
         body_keys = body.keys()
-        keys_valid = ['date_time', "appointment_id"]
+        keys_valid = ['date_time']
         validation = [values for values in body_keys if values not in keys_valid]
     
         if len(validation) == 0:
     
             date_time = body.get('date_time')
 
-            current_appointment: Appointments = Appointments.query.get(body["appointment_id"])
+            current_appointment: Appointments = Appointments.query.get(appointment_id)
 
             current_appointment.date_time = date_time if date_time else current_appointment.date_time
 
             session.add(current_appointment)
             session.commit()
 
-            return {"Data":"Sucess"}, 200
+            return {"data": date_time}, HTTPStatus.OK
 
     else:
         return {"data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
     return {}, HTTPStatus.NO_CONTENT
 
-@bp_appointments.route('/delete/<int:appointment_id>', methods=['DELETE'])
+@bp_appointments.route('/<int:appointment_id>', methods=['DELETE'])
 @jwt_required()
 def del_appointment(appointment_id):
     session = current_app.db.session
