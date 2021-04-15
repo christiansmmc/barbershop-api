@@ -5,6 +5,7 @@ from app.models.appointments import Appointments
 class AppointmentsSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Appointments
+
     id = ma.auto_field()
     barber_id = ma.auto_field()
     barber_shop_id = ma.auto_field()

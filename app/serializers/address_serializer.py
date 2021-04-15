@@ -6,6 +6,7 @@ class AddressSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Address
 
+    id = ma.auto_field()
     state = ma.auto_field()
     city = ma.auto_field()
     street_name = ma.auto_field()
