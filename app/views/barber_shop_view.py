@@ -107,7 +107,7 @@ def delete_barber_shop(barber_shop_id):
         session.commit()
         return {}, HTTPStatus.NO_CONTENT
 
-    return {"data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
+    return {"msg": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
 
 @bp_barber_shop.route("/login", methods=["POST"])
@@ -211,7 +211,7 @@ def update_barber_Shop(barbershop_id):
 
         else:
             return {
-                "error": "You do not have permission to do this"
+                "msg": "You do not have permission to do this"
             }, HTTPStatus.UNAUTHORIZED
 
     else:
