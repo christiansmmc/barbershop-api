@@ -19,7 +19,7 @@ def address(barbershop_id):
 
     if addresses_serialized:
 
-        return {"Data": addresses_serialized}, HTTPStatus.OK
+        return {"data": addresses_serialized}, HTTPStatus.OK
 
     else:
 
@@ -79,16 +79,16 @@ def update_address(address_id):
 
                 serialized = AddressSchema().dump(address_to_update)
 
-                return {"Data": serialized}, HTTPStatus.ACCEPTED
+                return {"data": serialized}, HTTPStatus.ACCEPTED
 
             else:
 
-                return {"Data": "Verify the request body"}, HTTPStatus.BAD_REQUEST
+                return {"data": "Verify the request body"}, HTTPStatus.BAD_REQUEST
 
         else:
 
             return {
-                "Error": "You do not have permission to do this"
+                "error": "You do not have permission to do this"
             }, HTTPStatus.UNAUTHORIZED
 
     return {"msg": "Wrong address ID"}
@@ -124,7 +124,7 @@ def update_address(address_id):
 #         return serialized, HTTPStatus.CREATED
 
 #     else:
-#         return {"Data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
+#         return {"data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
 
 # @bp_address.route("/<int:address_id>", methods=["DELETE"])
@@ -147,4 +147,4 @@ def update_address(address_id):
 
 #             return {}, HTTPStatus.NO_CONTENT
 
-#     return {"Data": "Wrong address ID"}, HTTPStatus.NOT_FOUND
+#     return {"data": "Wrong address ID"}, HTTPStatus.NOT_FOUND

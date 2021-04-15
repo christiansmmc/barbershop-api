@@ -31,7 +31,7 @@ def barber_shop():
 
             all_barbershops.append(barber_shop_serialized)
 
-        return {"Data": all_barbershops}
+        return {"data": all_barbershops}
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -77,7 +77,7 @@ def register_barber_shop():
 
                 barber_shop_serialized["address"] = address_serializer
 
-            return {"Data": barber_shop_serialized}, HTTPStatus.CREATED
+            return {"data": barber_shop_serialized}, HTTPStatus.CREATED
 
         else:
             return {"msg": "Verify BODY content"}
@@ -107,7 +107,7 @@ def delete_barber_shop(barber_shop_id):
         session.commit()
         return {}, HTTPStatus.NO_CONTENT
 
-    return {"Data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
+    return {"data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
 
 @bp_barber_shop.route("/login", methods=["POST"])
@@ -135,4 +135,84 @@ def login_barber_shop():
                 "Acess token": access_token,
             }, HTTPStatus.CREATED
 
-    return {"Data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+    return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+
+
+@bp_barber_shop.route("/update/<int:barbershop_id>", methods=["PATCH"])
+@jwt_required()
+def update_barber_Shop(barbershop_id):
+    current_user = get_jwt()
+
+    barbershop_to_update = Barber_shop.query.filter_by(id=barbershop_id).first()
+
+    if barbershop_to_update != None:
+        if (
+            current_user["user_id"] == barbershop_to_update.id
+            and current_user["user_type"] == "barber_shop"
+        ):
+            session = current_app.db.session
+
+            request_data = request.get_json()
+
+            validation_keys = [
+                "name",
+                "phone_number",
+                "cnpj",
+                "email",
+                "password",
+            ]
+
+            validation = [
+                value for value in request_data.keys() if value not in validation_keys
+            ]
+
+            if not validation:
+                name = (
+                    request_data.get("name")
+                    if request_data.get("name")
+                    else barbershop_to_update.name
+                )
+                phone_number = (
+                    request_data.get("phone_number")
+                    if request_data.get("phone_number")
+                    else barbershop_to_update.phone_number
+                )
+                cnpj = (
+                    request_data.get("cnpj")
+                    if request_data.get("cnpj")
+                    else barbershop_to_update.cnpj
+                )
+                email = (
+                    request_data.get("email")
+                    if request_data.get("email")
+                    else barbershop_to_update.email
+                )
+                password = (
+                    request_data.get("password")
+                    if request_data.get("password")
+                    else barbershop_to_update.password
+                )
+
+                barbershop_to_update.name = name
+                barbershop_to_update.phone_number = phone_number
+                barbershop_to_update.cnpj = cnpj
+                barbershop_to_update.email = email
+                barbershop_to_update.password = password
+
+                session.add(barbershop_to_update)
+                session.commit()
+
+                barber_shop_serialized = BarberSchema().dump(barbershop_to_update)
+
+                return {"data": barber_shop_serialized}, HTTPStatus.ACCEPTED
+
+            else:
+                return {"data": "Verify the request body"}, HTTPStatus.BAD_REQUEST
+
+        else:
+            return {
+                "error": "You do not have permission to do this"
+            }, HTTPStatus.UNAUTHORIZED
+
+    else:
+        return {"msg": "Wrong barbershop ID"}
