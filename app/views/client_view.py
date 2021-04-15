@@ -1,5 +1,7 @@
 from flask import Blueprint, request, current_app
+from flask_jwt_extendend import get_jwt, jwt_required
 from app.models.client import Client
+from http import HTTPStatus
 
 bp_client = Blueprint("bp_client", __name__, url_prefix='/client')
 
@@ -57,3 +59,19 @@ def update_client(user_id):
     else:
         
         return {"msg": "valores inválidos"}, 400
+
+@bp_client.route("/<int:user_id>", methods=["DELETE"])
+@jwt_required()
+def delete_client(user_id):
+    current_user = get_jwt()    
+
+    if (current_user["user_id"] == user_id and current_user["user_type"] == "client") :
+        session = current_app.db.session
+        Client.query.filter_by(id=user_id).delete()
+        session.commit()
+        return {}, 200
+
+    else:
+        return {"Data": "You don't have permission to do this"}, HTTPStatus.UNATHORIZED
+
+    return {"Data": "Wrong barbershop ID"}, HTTPSTATUS.NOT_FOUND
