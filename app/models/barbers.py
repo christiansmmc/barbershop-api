@@ -10,5 +10,4 @@ class Barbers(db.Model):
         db.ForeignKey("barber_shop.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
     name = db.Column(db.String(40), nullable=False, unique=False)
-    user_type = db.Column(db.String(30), nullable=False, unique=False)
     service_list = db.relationship("Services", backref="barbers")
