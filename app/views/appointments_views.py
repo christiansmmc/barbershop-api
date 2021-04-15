@@ -1,8 +1,10 @@
-from flask import Blueprint
-from flask_jwt_extended import jwt_required
+from flask import Blueprint,request, current_app
+from flask_jwt_extended import jwt_required, get_jwt
 
 from app.models.appointments import Appointments
 from app.serializers.appointments_serializer import AppointmentsSchema
+from http import HTTPStatus
+
 
 
 bp_appointments = Blueprint("appointments_views", __name__, url_prefix="/appointments")
@@ -20,9 +22,24 @@ def barber_appointments(barbershop_id, id_barber):
     serialized = AppointmentsSchema().dump(result)
     return str(result), 200
 
-# @bp_appointments.route('/', methods=['POST'])
-# def create_appointment():
-#     ...
+@bp_appointments.route('/', methods=['POST'])
+def create_appointment():
+    session = current_app.db.session
+
+    data = request.get_json()
+
+    appointment = Appointments(
+        barber_id=data['barber_id'],
+        barber_shop_id=data['barber_shop_id'],
+        services_id=data['services_id'],
+        client_id=data['client_id'],
+        date_time=data['date_time']
+    )
+
+    session.add(appointment)
+    session.commit()
+
+    return {"date_time": appointment.date_time}, HTTPStatus.CREATED
 
 # @bp_appointments.route('/', methods=['PATCH'])
 # def update_appointment():
