@@ -1,5 +1,6 @@
 from flask import Blueprint, request, current_app
 from app.models.client import Client
+from flask_jwt_extended import get_jwt, jwt_required, create_access_token
 
 bp_client = Blueprint("bp_client", __name__, url_prefix='/client')
 
@@ -24,6 +25,26 @@ def create_client():
     session.commit()
 
     return {"name": new_client.name, "email": new_client.email}, 201
+
+
+@bp_client.route("/login", methods=["POST"])
+def login_client():
+    body = request.get_json()
+    
+    login_client = Client.query.filter_by(email=body['email'], password=body['password']).first()
+    
+    if login_client != None:
+        additional_claims = {
+            "user_type": "client",
+            "user_id": login_client.id,
+        }
+        access_token = create_access_token(
+            identity=body['email'], additional_claims=additional_claims
+        )
+        
+        return {'Acess token': access_token}, 201
+    
+    return {'data': "Wrong email or password"}, 403
 
 @bp_client.route("/update/<int:user_id>", methods=['PATCH'])
 def update_client(user_id):

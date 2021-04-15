@@ -17,3 +17,7 @@ def init_app(app: Flask):
     from app.views.address_view import bp_address
 
     app.register_blueprint(bp_address)
+    
+    from app.views.barber_view import bp_barber
+    
+    app.register_blueprint(bp_barber)
