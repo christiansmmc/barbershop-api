@@ -46,13 +46,13 @@ def register_barber_shop():
         if request_data != None:
 
             barber_shop = Barber_shop(
-                name=request_data["name"],
-                phone_number=request_data["phone_number"],
-                cnpj=request_data["cnpj"],
-                email=request_data["email"],
-                password=request_data["password"],
+                name=request_data.get("name"),
+                phone_number=request_data.get("phone_number"),
+                cnpj=request_data.get("cnpj"),
+                email=request_data.get("email"),
                 user_type="barber_shop",
             )
+            barber_shop.password = request_data["password"]
 
             session.add(barber_shop)
             session.commit()
@@ -117,10 +117,10 @@ def login_barber_shop():
     user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
 
     if user_to_login != None:
-        if (
-            user_to_login.email == request_data["email"]
-            and user_to_login.password == request_data["password"]
-        ):
+
+        hash_validation = user_to_login.check_password(request_data.get("password"))
+
+        if hash_validation:
 
             additional_claims = {
                 "user_type": "barber_shop",
@@ -138,7 +138,7 @@ def login_barber_shop():
     return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
 
 
-@bp_barber_shop.route("/update/<int:barbershop_id>", methods=["PATCH"])
+@bp_barber_shop.route("/<int:barbershop_id>", methods=["PATCH"])
 @jwt_required()
 def update_barber_Shop(barbershop_id):
     current_user = get_jwt()
@@ -146,6 +146,7 @@ def update_barber_Shop(barbershop_id):
     barbershop_to_update = Barber_shop.query.filter_by(id=barbershop_id).first()
 
     if barbershop_to_update != None:
+
         if (
             current_user["user_id"] == barbershop_to_update.id
             and current_user["user_type"] == "barber_shop"
@@ -153,66 +154,47 @@ def update_barber_Shop(barbershop_id):
             session = current_app.db.session
 
             request_data = request.get_json()
+            name = (
+                request_data.get("name")
+                if request_data.get("name")
+                else barbershop_to_update.name
+            )
+            phone_number = (
+                request_data.get("phone_number")
+                if request_data.get("phone_number")
+                else barbershop_to_update.phone_number
+            )
+            cnpj = (
+                request_data.get("cnpj")
+                if request_data.get("cnpj")
+                else barbershop_to_update.cnpj
+            )
+            email = (
+                request_data.get("email")
+                if request_data.get("email")
+                else barbershop_to_update.email
+            )
+            password = (
+                request_data.get("password")
+                if request_data.get("password")
+                else barbershop_to_update.password
+            )
 
-            validation_keys = [
-                "name",
-                "phone_number",
-                "cnpj",
-                "email",
-                "password",
-            ]
+            barbershop_to_update.name = name
+            barbershop_to_update.phone_number = phone_number
+            barbershop_to_update.cnpj = cnpj
+            barbershop_to_update.email = email
+            barbershop_to_update.password = password
 
-            validation = [
-                value for value in request_data.keys() if value not in validation_keys
-            ]
+            session.add(barbershop_to_update)
+            session.commit()
 
-            if not validation:
-                name = (
-                    request_data.get("name")
-                    if request_data.get("name")
-                    else barbershop_to_update.name
-                )
-                phone_number = (
-                    request_data.get("phone_number")
-                    if request_data.get("phone_number")
-                    else barbershop_to_update.phone_number
-                )
-                cnpj = (
-                    request_data.get("cnpj")
-                    if request_data.get("cnpj")
-                    else barbershop_to_update.cnpj
-                )
-                email = (
-                    request_data.get("email")
-                    if request_data.get("email")
-                    else barbershop_to_update.email
-                )
-                password = (
-                    request_data.get("password")
-                    if request_data.get("password")
-                    else barbershop_to_update.password
-                )
+            barber_shop_serialized = BarberSchema().dump(barbershop_to_update)
 
-                barbershop_to_update.name = name
-                barbershop_to_update.phone_number = phone_number
-                barbershop_to_update.cnpj = cnpj
-                barbershop_to_update.email = email
-                barbershop_to_update.password = password
-
-                session.add(barbershop_to_update)
-                session.commit()
-
-                barber_shop_serialized = BarberSchema().dump(barbershop_to_update)
-
-                return {"data": barber_shop_serialized}, HTTPStatus.ACCEPTED
-
-            else:
-                return {"data": "Verify the request body"}, HTTPStatus.BAD_REQUEST
+            return {"data": barber_shop_serialized}, HTTPStatus.ACCEPTED
 
         else:
-            return {
-                "msg": "You do not have permission to do this"
-            }, HTTPStatus.UNAUTHORIZED
+            return {"msg": "Wrong email or password"}, HTTPStatus.FORBIDDEN
 
     else:
-        return {"msg": "Wrong barbershop ID"}
+        return {"msg": "Wrong barbershop ID, email or password"}, HTTPStatus.FORBIDDEN
