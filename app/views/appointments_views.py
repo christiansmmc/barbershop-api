@@ -6,6 +6,7 @@ from app.models.services import Services
 from app.models.client import Client
 from app.models.barbers import Barbers
 from app.serializers.appointments_serializer import AppointmentsSchema
+
 from http import HTTPStatus
 
 
