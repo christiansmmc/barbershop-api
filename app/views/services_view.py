@@ -41,7 +41,32 @@ def register_services(barber_id):
             "msg": "You don't have permission to do this"
         }, HTTPStatus.UNAUTHORIZED
         
-# @bp_services.route('', methods=['DELETE'])
+@bp_services.route('/<int:service_id>', methods=['DELETE'])
+@jwt_required()
+def delete_service(service_id):
+    session = current_app.db.session
+    current_user = get_jwt()
+    
+    get_service: Services = Services.query.filter_by(id=service_id).first()
+    barber_id = get_service.barber_id
+    get_barber: Barbers = Barbers.query.filter_by(id=barber_id).first()
+    barber_shop_id = get_barber.barber_shop_id
+    
+    if current_user["user_id"] == barber_shop_id and current_user["user_type"] == "barber_shop":
+        # print(f'SERVICE {get_service.barber_id} {get_service.service_name}')
+        session.delete(get_service)
+        session.commit()
+    
+        return {'msg': 'Service delete'}, HTTPStatus.OK
+    
+    else:
+        return {
+            "msg": "You don't have permission to do this"
+        }, HTTPStatus.UNAUTHORIZED
+        
+
+    
+    
 
             
     
