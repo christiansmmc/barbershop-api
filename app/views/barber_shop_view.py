@@ -114,31 +114,29 @@ def delete_barber_shop(barber_shop_id):
 def login_barber_shop():
     request_data = request.get_json()
 
-    user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
+    user_to_login = Barber_shop.query.filter_by(
+        email=request_data["email"], password=request_data["password"]
+    ).first()
 
     if user_to_login != None:
-        if (
-            user_to_login.email == request_data["email"]
-            and user_to_login.password == request_data["password"]
-        ):
 
-            additional_claims = {
-                "user_type": "barber_shop",
-                "user_id": user_to_login.id,
-            }
-            access_token = create_access_token(
-                identity=request_data["email"], additional_claims=additional_claims
-            )
+        additional_claims = {
+            "user_type": "barber_shop",
+            "user_id": user_to_login.id,
+        }
+        access_token = create_access_token(
+            identity=request_data["email"], additional_claims=additional_claims
+        )
 
-            return {
-                "Barber ID": user_to_login.id,
-                "Acess token": access_token,
-            }, HTTPStatus.CREATED
+        return {
+            "Barber ID": user_to_login.id,
+            "Acess token": access_token,
+        }, HTTPStatus.CREATED
 
     return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
 
 
-@bp_barber_shop.route("/update/<int:barbershop_id>", methods=["PATCH"])
+@bp_barber_shop.route("/<int:barbershop_id>", methods=["PATCH"])
 @jwt_required()
 def update_barber_Shop(barbershop_id):
     current_user = get_jwt()
@@ -215,4 +213,4 @@ def update_barber_Shop(barbershop_id):
             }, HTTPStatus.UNAUTHORIZED
 
     else:
-        return {"msg": "Wrong barbershop ID"}
+        return {"msg": "Wrong barbershop ID"}, HTTPStatus.NOT_FOUND
