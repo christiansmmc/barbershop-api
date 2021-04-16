@@ -23,10 +23,11 @@ def create_client():
     new_client = Client(
         name=name,
         email=email,
-        password=password,
         phone_number=phone_number,
         user_type=user_type,
     )
+
+    new_client.password = password
 
     session.add(new_client)
     session.commit()
@@ -42,28 +43,31 @@ def create_client():
 def login_client():
     body = request.get_json()
 
-    login_client = Client.query.filter_by(
-        email=body["email"], password=body["password"]
-    ).first()
+    login_client = Client.query.filter_by(email=body["email"]).first()
 
     if login_client != None:
-        additional_claims = {
-            "user_type": "client",
-            "user_id": login_client.id,
-        }
-        access_token = create_access_token(
-            identity=body["email"], additional_claims=additional_claims
-        )
 
-        return {
-            "user ID": login_client.id,
-            "acess token": access_token,
-        }, HTTPStatus.CREATED
+        hash_validation = login_client.check_password(body.get("password"))
+
+        if hash_validation:
+
+            additional_claims = {
+                "user_type": "client",
+                "user_id": login_client.id,
+            }
+            access_token = create_access_token(
+                identity=body["email"], additional_claims=additional_claims
+            )
+
+            return {
+                "user ID": login_client.id,
+                "acess token": access_token,
+            }, HTTPStatus.CREATED
 
     return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
 
 
-@bp_client.route("/update/<int:user_id>", methods=["PATCH"])
+@bp_client.route("/<int:user_id>", methods=["PATCH"])
 def update_client(user_id):
     session = current_app.db.session
 
@@ -94,7 +98,12 @@ def update_client(user_id):
         session.add(current_client)
         session.commit()
 
-        return {"id": current_client.id, "name": current_client.name, "email": current_client.email, "phone_number": current_client.phone_number}, HTTPStatus.ACCEPTED
+        return {
+            "id": current_client.id,
+            "name": current_client.name,
+            "email": current_client.email,
+            "phone_number": current_client.phone_number,
+        }, HTTPStatus.ACCEPTED
 
     else:
 
@@ -106,10 +115,7 @@ def update_client(user_id):
 def delete_client(user_id):
     current_user = get_jwt()
 
-    if (
-        current_user["user_id"] != user_id
-        or current_user["user_type"] != "client"
-    ):
+    if current_user["user_id"] != user_id or current_user["user_type"] != "client":
         return {"Data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
     session = current_app.db.session
