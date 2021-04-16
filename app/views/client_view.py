@@ -1,5 +1,5 @@
 from flask import Blueprint, request, current_app
-from flask_jwt_extendend import get_jwt, jwt_required
+from flask_jwt_extended import get_jwt, jwt_required
 from app.models.client import Client
 from http import HTTPStatus
 
