@@ -48,26 +48,69 @@ def delete_service(service_id):
     current_user = get_jwt()
     
     get_service: Services = Services.query.filter_by(id=service_id).first()
-    barber_id = get_service.barber_id
-    get_barber: Barbers = Barbers.query.filter_by(id=barber_id).first()
-    barber_shop_id = get_barber.barber_shop_id
     
+    if get_service == None:
+        return {'msg': 'Wrong service ID'}, HTTPStatus.BAD_REQUEST
+    
+    barber_id = get_service.barber_id
+    get_barber: Barbers = Barbers.query.get(barber_id)
+    barber_shop_id = get_barber.barber_shop_id
+     
     if current_user["user_id"] == barber_shop_id and current_user["user_type"] == "barber_shop":
-        # print(f'SERVICE {get_service.barber_id} {get_service.service_name}')
         session.delete(get_service)
         session.commit()
     
-        return {'msg': 'Service delete'}, HTTPStatus.OK
+        return {'msg': 'Service delete'}, HTTPStatus.NO_CONTENT
     
     else:
         return {
             "msg": "You don't have permission to do this"
         }, HTTPStatus.UNAUTHORIZED
-        
-
-    
-    
-
             
+@bp_services.route('/<int:service_id>', methods=['PATCH'])
+@jwt_required()
+def update_services(service_id):
+    session = current_app.db.session
+    body = request.get_json()
+    current_user = get_jwt()
     
+    get_service: Services = Services.query.get(service_id)
+    
+    if get_service == None:
+        return {'msg': 'Wrong service ID'}, HTTPStatus.BAD_REQUEST
+    
+    barber_id = get_service.barber_id
+    get_barber: Barbers = Barbers.query.get(barber_id)
+    barber_shop_id = get_barber.barber_shop_id
+    
+    if current_user["user_id"] == barber_shop_id and current_user["user_type"] == "barber_shop":
+        
+        body_keys = body.keys()
+        keys_valid = ["service_name", "service_price"]
+        validation = [values for values in body_keys if values not in keys_valid]
+
+        if len(validation) == 0:
+
+            service_name = body.get("service_name")
+            service_price = body.get("service_price")
+
+            barbar_id = get_service.barber_id
+            barber: Barbers = Barbers.query.get(barbar_id)
+
+            get_service.service_name = service_name if service_name != None else get_service.service_name
+            get_service.service_price = service_price if service_price != None else get_service.service_price
+
+            session.add(get_service)
+            session.commit()
+
+            return {"name": barber.name, "service_name": get_service.service_name, "service_price": get_service.service_price}, HTTPStatus.ACCEPTED
+
+        else:
+
+            return {"msg": "invalid values"}, HTTPStatus.BAD_REQUEST
+    
+    else:
+        return {
+            "msg": "You don't have permission to do this"
+        }, HTTPStatus.UNAUTHORIZED
             
