@@ -131,7 +131,7 @@ def login_barber_shop():
             )
 
             return {
-                "Barber ID": user_to_login.id,
+                "Barbershop ID": user_to_login.id,
                 "Acess token": access_token,
             }, HTTPStatus.CREATED
 
@@ -154,37 +154,17 @@ def update_barber_Shop(barbershop_id):
             session = current_app.db.session
 
             request_data = request.get_json()
-            name = (
-                request_data.get("name")
-                if request_data.get("name")
-                else barbershop_to_update.name
-            )
-            phone_number = (
-                request_data.get("phone_number")
-                if request_data.get("phone_number")
-                else barbershop_to_update.phone_number
-            )
-            cnpj = (
-                request_data.get("cnpj")
-                if request_data.get("cnpj")
-                else barbershop_to_update.cnpj
-            )
-            email = (
-                request_data.get("email")
-                if request_data.get("email")
-                else barbershop_to_update.email
-            )
-            password = (
-                request_data.get("password")
-                if request_data.get("password")
-                else barbershop_to_update.password
-            )
 
-            barbershop_to_update.name = name
-            barbershop_to_update.phone_number = phone_number
-            barbershop_to_update.cnpj = cnpj
-            barbershop_to_update.email = email
-            barbershop_to_update.password = password
+            if request_data.get("name"):
+                barbershop_to_update.name = request_data.get("name")
+            if request_data.get("phone_number"):
+                barbershop_to_update.phone_number = request_data.get("phone_number")
+            if request_data.get("cnpj"):
+                barbershop_to_update.cnpj = request_data.get("cnpj")
+            if request_data.get("email"):
+                barbershop_to_update.email = request_data.get("email")
+            if request_data.get("password"):
+                barbershop_to_update.password = request_data.get("password")
 
             session.add(barbershop_to_update)
             session.commit()
