@@ -2,6 +2,8 @@ from flask import Blueprint, request, current_app
 from app.models.client import Client
 from http import HTTPStatus
 from flask_jwt_extended import get_jwt, jwt_required, create_access_token
+from app.models.client import Client
+from http import HTTPStatus
 
 bp_client = Blueprint("bp_client", __name__, url_prefix="/client")
 
@@ -92,13 +94,25 @@ def update_client(user_id):
         session.add(current_client)
         session.commit()
 
-        return {
-            "id": current_client.id,
-            "name": current_client.name,
-            "email": current_client.email,
-            "phone_number": current_client.phone_number,
-        }, HTTPStatus.ACCEPTED
+        return {"id": current_client.id, "name": current_client.name, "email": current_client.email, "phone_number": current_client.phone_number}, HTTPStatus.ACCEPTED
 
     else:
 
         return {"msg": "valores inválidos"}, HTTPStatus.BAD_REQUEST
+
+
+@bp_client.route("/<int:user_id>", methods=["DELETE"])
+@jwt_required()
+def delete_client(user_id):
+    current_user = get_jwt()
+
+    if (
+        current_user["user_id"] != user_id
+        or current_user["user_type"] != "client"
+    ):
+        return {"Data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
+
+    session = current_app.db.session
+    Client.query.filter_by(id=user_id).delete()
+    session.commit()
+    return {}, HTTPStatus.NO_CONTENT
