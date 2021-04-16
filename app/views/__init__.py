@@ -21,3 +21,7 @@ def init_app(app: Flask):
     from app.views.barber_view import bp_barber
     
     app.register_blueprint(bp_barber)
+    
+    from app.views.services_view import bp_services
+    
+    app.register_blueprint(bp_services)
