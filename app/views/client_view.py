@@ -23,10 +23,11 @@ def create_client():
     new_client = Client(
         name=name,
         email=email,
-        password=password,
         phone_number=phone_number,
         user_type=user_type,
     )
+
+    new_client.password = password
 
     session.add(new_client)
     session.commit()
@@ -42,23 +43,26 @@ def create_client():
 def login_client():
     body = request.get_json()
 
-    login_client = Client.query.filter_by(
-        email=body["email"], password=body["password"]
-    ).first()
+    login_client = Client.query.filter_by(email=body["email"]).first()
 
     if login_client != None:
-        additional_claims = {
-            "user_type": "client",
-            "user_id": login_client.id,
-        }
-        access_token = create_access_token(
-            identity=body["email"], additional_claims=additional_claims
-        )
 
-        return {
-            "user ID": login_client.id,
-            "acess token": access_token,
-        }, HTTPStatus.CREATED
+        hash_validation = login_client.check_password(body.get("password"))
+
+        if hash_validation:
+
+            additional_claims = {
+                "user_type": "client",
+                "user_id": login_client.id,
+            }
+            access_token = create_access_token(
+                identity=body["email"], additional_claims=additional_claims
+            )
+
+            return {
+                "user ID": login_client.id,
+                "acess token": access_token,
+            }, HTTPStatus.CREATED
 
     return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
 
@@ -88,9 +92,9 @@ def update_client(user_id):
 
             current_client.name = name if name != None else current_client.name
             current_client.email = email if email != None else current_client.email
-            current_client.password = (
-                password if password != None else current_client.password
-            )
+            # current_client.password = (
+            #     password if password != None else current_client.password
+            # )
             current_client.phone_number = (
                 phone_number if phone_number != None else current_client.phone_number
             )
