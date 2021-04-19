@@ -80,35 +80,40 @@ def barber_appointments(barbershop_id, id_barber):
 @bp_appointments.route("", methods=["POST"])
 @jwt_required()
 def create_appointment():
-    current_user = get_jwt()
-    data = request.get_json()
+    try:
+        current_user = get_jwt()
+        data = request.get_json()
 
-    if current_user["user_type"] == "client":
-        session = current_app.db.session
+        if current_user["user_type"] == "client":
+            session = current_app.db.session
 
-        result = Services.query.filter_by(id=data["services_id"]).first()
+            result = Services.query.filter_by(id=data["services_id"]).first()
 
-        appointment = Appointments(
-            barber_id=data["barber_id"],
-            barber_shop_id=data["barber_shop_id"],
-            services_id=data["services_id"],
-            client_id=current_user["user_id"],
-            date_time=data["date_time"],
-        )
+            appointment = Appointments(
+                barber_id=data["barber_id"],
+                barber_shop_id=data["barber_shop_id"],
+                services_id=data["services_id"],
+                client_id=current_user["user_id"],
+                date_time=data["date_time"],
+            )
 
-        session.add(appointment)
-        session.commit()
+            session.add(appointment)
+            session.commit()
 
-        return {
-            "data": {
-                "date": appointment.date_time,
-                "service": result.service_name,
-                "price": result.service_price,
-            }
-        }, HTTPStatus.CREATED
+            return {
+                "data": {
+                    "date": appointment.date_time,
+                    "service": result.service_name,
+                    "price": result.service_price,
+                }
+            }, HTTPStatus.CREATED
 
-    else:
-        return {"data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
+        else:
+            return {
+                "data": "You don't have permission to do this"
+            }, HTTPStatus.UNAUTHORIZED
+    except KeyError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_appointments.route("/<int:appointment_id>", methods=["PATCH"])
@@ -119,32 +124,35 @@ def update_appointment(appointment_id):
     session = current_app.db.session
     result = Appointments.query.filter_by(id=appointment_id).first()
 
-    if (
-        current_user["user_id"] == result.client_id
-        and current_user["user_type"] == "client"
-    ):
-        body_keys = body.keys()
-        keys_valid = ["date_time"]
-        validation = [values for values in body_keys if values not in keys_valid]
+    if result:
 
-        if len(validation) == 0:
+        if (
+            current_user["user_id"] == result.client_id
+            and current_user["user_type"] == "client"
+        ):
 
-            date_time = body.get("date_time")
             current_appointment: Appointments = Appointments.query.get(appointment_id)
 
-            current_appointment.date_time = (
-                date_time if date_time else current_appointment.date_time
-            )
+            if body.get("date_time"):
 
-            session.add(current_appointment)
-            session.commit()
+                date_time = body.get("date_time")
 
-            return {"data": date_time}, HTTPStatus.OK
+                current_appointment.date_time = date_time
 
-    else:
-        return {"data": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
+                session.add(current_appointment)
+                session.commit()
 
-    return {}, HTTPStatus.NO_CONTENT
+                return {"data": date_time}, HTTPStatus.OK
+
+            else:
+                return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
+
+        else:
+            return {
+                "data": "You don't have permission to do this"
+            }, HTTPStatus.UNAUTHORIZED
+
+    return {"msg": "Wrong appointment ID"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_appointments.route("/<int:appointment_id>", methods=["DELETE"])
