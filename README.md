@@ -7,11 +7,11 @@
   
 ### The following routes do not need token to access:  
   
-#### /address/<barbershop_id>
-
- Method GET 
-
- Get all address from barbershop
+ 
+###### Address
+  
+/address/<barbershop_id> - GET  
+Get all address from barbershop  
   
 /appointments/<barbershop_id> - GET  
 /appointments/<barbershop_id>/<barber_id> - GET  
