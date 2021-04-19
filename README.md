@@ -51,20 +51,24 @@ Login as costumer
   
 ### The following routes need authentication to access:
   
+#### Address
 
 | Route | Method | Description |
-| --- | --- | --- |
-| --- | Address | --- |
 |/address/<address_id> | PATCH | Updata data from address |
-| --- | --- | --- |
 
+#### Appointments
+
+| Route | Method | Description |
+|/appointments | POST | Create appointment |
+|/appointments/<appointment_id> | PATCH | Updata data from appointment |
+|/appointments/<appointment_id> | PATCH | Updata data from appointment |
+
+#### Appointments
+
+| Route | Method | Description |
+|/barber_shop/<barbershop_id | DELETE | Delete barbershop |
+|/barber_shop/<barbershop_id | PATCH | Updata data from barbershop |
   
-/appointments - POST  
-/appointments/<appointment_id> - PATCH  
-/appointments/<appointment_id> - PATCH  
-  
-/barber_shop/<barbershop_id> - DELETE  
-/barber_shop/<barbershop_id> - PATCH  
   
 /barber/register/<barbershop_id> - POST  
 /barber/<barber_id> - DELETE  
