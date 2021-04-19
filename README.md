@@ -78,13 +78,20 @@ Login as costumer
 | ---- | ---- | ---- |
 | /barber/register/<barbershop_id> | POST | Create barber for barbershop |
 | /barber/<barber_id> | DELETE | Delete barber from barbershop |
+
+#### Client
+
+| Route | Method | Description |
+| ---- | ---- | ---- |
+| /client/<user_id> | PATCH | Updata data from costumer |
+| /client/<user_id> | DELETE | Delete costumer |
+
+#### Services
+
+| Route | Method | Description |
+| ---- | ---- | ---- |
+| /services/<barber_id> | POST | Create service for barber |
+| /services/<service_id> | PATCH | Update service from barber |
+| /services/<service_id> | DELETE | Delete service from barber |
   
-  
-  
-/client/<user_id> - POST  
-/client/<user_id> - DELETE  
-  
-/services/<barber_id> - POST  
-/services/<service_id> - PATCH  
-/services/<service_id> - DELETE 
 
