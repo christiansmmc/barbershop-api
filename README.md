@@ -5,7 +5,7 @@
 
 # Routes
   
-## The following routes do not need token to access:  
+## The following routes do not need authentication to access:  
   
  
 #### Address
@@ -49,9 +49,15 @@ Login as costumer
   
 # Authenticated routes
   
-### The following routes needs a token to access:  
+### The following routes need authentication to access:
   
-/address/<address_id> - PATCH  
+
+| Route | Method | Description |
+| --- | --- | --- |
+| --- | Address | --- |
+|/address/<address_id> | PATCH | Updata data from address |
+| --- | --- | --- |
+
   
 /appointments - POST  
 /appointments/<appointment_id> - PATCH  
