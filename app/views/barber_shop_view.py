@@ -43,7 +43,7 @@ def register_barber_shop():
 
         request_data = request.get_json()
 
-        if request_data != None:
+        if request_data:
 
             barber_shop = Barber_shop(
                 name=request_data.get("name"),
@@ -112,30 +112,39 @@ def delete_barber_shop(barber_shop_id):
 
 @bp_barber_shop.route("/login", methods=["POST"])
 def login_barber_shop():
-    request_data = request.get_json()
+    try:
+        request_data = request.get_json()
 
-    user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
+        user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
 
-    if user_to_login != None:
+        if user_to_login != None:
 
-        hash_validation = user_to_login.check_password(request_data.get("password"))
+            hash_validation = user_to_login.check_password(request_data.get("password"))
 
-        if hash_validation:
+            if hash_validation:
 
-            additional_claims = {
-                "user_type": "barber_shop",
-                "user_id": user_to_login.id,
-            }
-            access_token = create_access_token(
-                identity=request_data["email"], additional_claims=additional_claims
-            )
+                additional_claims = {
+                    "user_type": "barber_shop",
+                    "user_id": user_to_login.id,
+                }
+                access_token = create_access_token(
+                    identity=request_data["email"], additional_claims=additional_claims
+                )
 
-            return {
-                "Barbershop ID": user_to_login.id,
-                "Acess token": access_token,
-            }, HTTPStatus.CREATED
+                return {
+                    "data": {
+                        "Barbershop ID": user_to_login.id,
+                        "Acess token": access_token,
+                    }
+                }, HTTPStatus.CREATED
 
-    return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+        return {"msg": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+
+    except KeyError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
+
+    except TypeError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_barber_shop.route("/<int:barbershop_id>", methods=["PATCH"])
@@ -145,7 +154,7 @@ def update_barber_Shop(barbershop_id):
 
     barbershop_to_update = Barber_shop.query.filter_by(id=barbershop_id).first()
 
-    if barbershop_to_update != None:
+    if barbershop_to_update:
 
         if (
             current_user["user_id"] == barbershop_to_update.id
