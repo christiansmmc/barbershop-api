@@ -8,42 +8,42 @@
 ### The following routes do not need token to access:  
   
  
-##### Address
+#### Address
 
-###### /address/<barbershop_id> - GET  
+##### /address/<barbershop_id> - GET  
 Get all address from barbershop  
   
   
-##### Appointments
+#### Appointments
 
-###### /appointments/<barbershop_id> - GET  
+##### /appointments/<barbershop_id> - GET  
 Get all appointments from barbershop  
   
-###### /appointments/<barbershop_id>/<barber_id> - GET  
+##### /appointments/<barbershop_id>/<barber_id> - GET  
 Get all appointments from barber  
   
   
-##### Barbershop
-###### /barber_shop - GET  
+#### Barbershop
+##### /barber_shop - GET  
 Get all barbershop registred on the database  
   
-###### /barber_shop/register - POST  
+##### /barber_shop/register - POST  
 Register as barbershop
   
-###### /barber_shop/login - POST  
+##### /barber_shop/login - POST  
 Login as barbershop  
   
   
-##### Barber
-###### /barber/<barbershop_id> - GET  
+#### Barber
+##### /barber/<barbershop_id> - GET  
 Get barbers from barbershop  
   
   
-##### Client
-###### /client/register - POST  
+#### Client
+##### /client/register - POST  
 Register as costumer  
   
-###### /client/login - POST  
+##### /client/login - POST  
 Login as costumer  
   
   
