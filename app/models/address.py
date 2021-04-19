@@ -12,5 +12,5 @@ class Address(db.Model):
     state = db.Column(db.String(40), nullable=False, unique=False)
     city = db.Column(db.String(40), nullable=False, unique=False)
     street_name = db.Column(db.String(40), nullable=False, unique=False)
-    building_number = db.Column(db.String(20), nullable=False, unique=True)
+    building_number = db.Column(db.String(20), nullable=False, unique=False)
     zip_code = db.Column(db.String(20), nullable=False, unique=False)

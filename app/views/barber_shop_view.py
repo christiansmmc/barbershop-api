@@ -55,7 +55,6 @@ def register_barber_shop():
             barber_shop.password = request_data["password"]
 
             address = Address(
-                # barber_shop_id=barber_shop.id,
                 state=request_data["address"]["state"],
                 city=request_data["address"]["city"],
                 street_name=request_data["address"]["street_name"],
@@ -80,7 +79,7 @@ def register_barber_shop():
             return {"data": barber_shop_serialized}, HTTPStatus.CREATED
 
         else:
-            return {"msg": "Verify BODY content"}
+            return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
     except IntegrityError as e:
 
@@ -183,7 +182,9 @@ def update_barber_Shop(barbershop_id):
             return {"data": barber_shop_serialized}, HTTPStatus.ACCEPTED
 
         else:
-            return {"msg": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+            return {
+                "error": "You do not have permission to do this"
+            }, HTTPStatus.UNAUTHORIZED
 
     else:
-        return {"msg": "Wrong barbershop ID, email or password"}, HTTPStatus.FORBIDDEN
+        return {"msg": "Wrong barbershop ID or token"}, HTTPStatus.FORBIDDEN
