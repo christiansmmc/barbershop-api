@@ -59,15 +59,15 @@ Login as costumer
 #### Appointments
 
 | Route | Method | Description |
-|/appointments | POST | Create appointment |
-|/appointments/<appointment_id> | PATCH | Updata data from appointment |
-|/appointments/<appointment_id> | PATCH | Updata data from appointment |
+| /appointments | POST | Create appointment |
+| /appointments/<appointment_id> | PATCH | Updata data from appointment |
+| /appointments/<appointment_id> | PATCH | Updata data from appointment |
 
 #### Appointments
 
 | Route | Method | Description |
-|/barber_shop/<barbershop_id | DELETE | Delete barbershop |
-|/barber_shop/<barbershop_id | PATCH | Updata data from barbershop |
+| /barber_shop/<barbershop_id | DELETE | Delete barbershop |
+| /barber_shop/<barbershop_id | PATCH | Updata data from barbershop |
   
   
 /barber/register/<barbershop_id> - POST  
