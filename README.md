@@ -56,7 +56,7 @@ Login as costumer
 | Route | Method | Description |
 | /address/<address_id> | PATCH | Updata data from address |
 
-#### Appointments
+<!-- #### Appointments
 
 | Route | Method | Description |
 | /appointments | POST | Create appointment |
@@ -78,5 +78,5 @@ Login as costumer
   
 /services/<barber_id> - POST  
 /services/<service_id> - PATCH  
-/services/<service_id> - DELETE  
+/services/<service_id> - DELETE   -->
 
