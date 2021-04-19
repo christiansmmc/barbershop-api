@@ -57,9 +57,10 @@ Login as costumer
 | ---- | ---- | ---- |
 | /address/<address_id> | PATCH | Updata data from address |
 
-<!-- #### Appointments
+#### Appointments
 
 | Route | Method | Description |
+| ---- | ---- | ---- |
 | /appointments | POST | Create appointment |
 | /appointments/<appointment_id> | PATCH | Updata data from appointment |
 | /appointments/<appointment_id> | PATCH | Updata data from appointment |
@@ -67,17 +68,23 @@ Login as costumer
 #### Appointments
 
 | Route | Method | Description |
+| ---- | ---- | ---- |
 | /barber_shop/<barbershop_id | DELETE | Delete barbershop |
 | /barber_shop/<barbershop_id | PATCH | Updata data from barbershop |
+
+#### Barber
+
+| Route | Method | Description |
+| ---- | ---- | ---- |
+| /barber/register/<barbershop_id> | POST | Create barber for barbershop |
+| /barber/<barber_id> | DELETE | Delete barber from barbershop |
   
   
-/barber/register/<barbershop_id> - POST  
-/barber/<barber_id> - DELETE  
   
 /client/<user_id> - POST  
 /client/<user_id> - DELETE  
   
 /services/<barber_id> - POST  
 /services/<service_id> - PATCH  
-/services/<service_id> - DELETE   -->
+/services/<service_id> - DELETE 
 
