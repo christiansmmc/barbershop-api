@@ -5,7 +5,7 @@
 
 # Routes
   
-The following routes do not need token to access:  
+## The following routes do not need token to access:  
   
 /address/<barbershop_id> - GET  
   
@@ -24,9 +24,9 @@ The following routes do not need token to access:
   
 # Authenticated routes
   
-The following routes needs a token to access:  
+## The following routes needs a token to access:  
   
-/address/<address id> - PATCH  
+/address/<address_id> - PATCH  
   
 /appointments - POST  
 /appointments/<appointment_id> - PATCH  
