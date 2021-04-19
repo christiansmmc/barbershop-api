@@ -43,39 +43,39 @@ def register_barber_shop():
 
         request_data = request.get_json()
 
-        if request_data != None:
+        if request_data:
 
             barber_shop = Barber_shop(
-                name=request_data.get("name"),
-                phone_number=request_data.get("phone_number"),
-                cnpj=request_data.get("cnpj"),
-                email=request_data.get("email"),
+                name=request_data["name"],
+                phone_number=request_data["phone_number"],
+                cnpj=request_data["cnpj"],
+                email=request_data["email"],
                 user_type="barber_shop",
             )
             barber_shop.password = request_data["password"]
 
+            address = Address(
+                # barber_shop_id=barber_shop.id,
+                state=request_data["address"]["state"],
+                city=request_data["address"]["city"],
+                street_name=request_data["address"]["street_name"],
+                building_number=request_data["address"]["building_number"],
+                zip_code=request_data["address"]["zip_code"],
+            )
+
             session.add(barber_shop)
+            session.add(address)
+            session.commit()
+
+            address.barber_shop_id = barber_shop.id
+
             session.commit()
 
             barber_shop_serialized = BarberSchema().dump(barber_shop)
 
-            if "address" in request_data:
+            address_serializer = AddressSchema().dump(address)
 
-                address = Address(
-                    barber_shop_id=barber_shop.id,
-                    state=request_data["address"]["state"],
-                    city=request_data["address"]["city"],
-                    street_name=request_data["address"]["street_name"],
-                    building_number=request_data["address"]["building_number"],
-                    zip_code=request_data["address"]["zip_code"],
-                )
-
-                session.add(address)
-                session.commit()
-
-                address_serializer = AddressSchema().dump(address)
-
-                barber_shop_serialized["address"] = address_serializer
+            barber_shop_serialized["address"] = address_serializer
 
             return {"data": barber_shop_serialized}, HTTPStatus.CREATED
 
@@ -112,30 +112,39 @@ def delete_barber_shop(barber_shop_id):
 
 @bp_barber_shop.route("/login", methods=["POST"])
 def login_barber_shop():
-    request_data = request.get_json()
+    try:
+        request_data = request.get_json()
 
-    user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
+        user_to_login = Barber_shop.query.filter_by(email=request_data["email"]).first()
 
-    if user_to_login != None:
+        if user_to_login != None:
 
-        hash_validation = user_to_login.check_password(request_data.get("password"))
+            hash_validation = user_to_login.check_password(request_data.get("password"))
 
-        if hash_validation:
+            if hash_validation:
 
-            additional_claims = {
-                "user_type": "barber_shop",
-                "user_id": user_to_login.id,
-            }
-            access_token = create_access_token(
-                identity=request_data["email"], additional_claims=additional_claims
-            )
+                additional_claims = {
+                    "user_type": "barber_shop",
+                    "user_id": user_to_login.id,
+                }
+                access_token = create_access_token(
+                    identity=request_data["email"], additional_claims=additional_claims
+                )
 
-            return {
-                "Barbershop ID": user_to_login.id,
-                "Acess token": access_token,
-            }, HTTPStatus.CREATED
+                return {
+                    "data": {
+                        "Barbershop ID": user_to_login.id,
+                        "Acess token": access_token,
+                    }
+                }, HTTPStatus.CREATED
 
-    return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+        return {"msg": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+
+    except KeyError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
+
+    except TypeError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_barber_shop.route("/<int:barbershop_id>", methods=["PATCH"])
@@ -145,7 +154,7 @@ def update_barber_Shop(barbershop_id):
 
     barbershop_to_update = Barber_shop.query.filter_by(id=barbershop_id).first()
 
-    if barbershop_to_update != None:
+    if barbershop_to_update:
 
         if (
             current_user["user_id"] == barbershop_to_update.id
