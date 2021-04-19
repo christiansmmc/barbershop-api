@@ -54,7 +54,7 @@ Login as costumer
 #### Address
 
 | Route | Method | Description |
-|/address/<address_id> | PATCH | Updata data from address |
+| /address/<address_id> | PATCH | Updata data from address |
 
 #### Appointments
 
