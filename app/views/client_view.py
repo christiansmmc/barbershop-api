@@ -4,39 +4,51 @@ from http import HTTPStatus
 from flask_jwt_extended import get_jwt, jwt_required, create_access_token
 from app.models.client import Client
 from http import HTTPStatus
+from sqlalchemy.exc import IntegrityError
+import re
 
 bp_client = Blueprint("bp_client", __name__, url_prefix="/client")
 
 
 @bp_client.route("/register", methods=["POST"])
 def create_client():
-    session = current_app.db.session
+    try:
+        session = current_app.db.session
 
-    body = request.get_json()
+        body = request.get_json()
 
-    name = body.get("name")
-    email = body.get("email")
-    password = body.get("password")
-    phone_number = body.get("phone_number")
-    user_type = "client"
+        name = body["name"]
+        email = body["email"]
+        password = body["password"]
+        phone_number = body["phone_number"]
+        user_type = "client"
 
-    new_client = Client(
-        name=name,
-        email=email,
-        phone_number=phone_number,
-        user_type=user_type,
-    )
+        new_client = Client(
+            name=name,
+            email=email,
+            phone_number=phone_number,
+            user_type=user_type,
+        )
 
-    new_client.password = password
+        new_client.password = password
 
-    session.add(new_client)
-    session.commit()
+        session.add(new_client)
+        session.commit()
 
-    return {
-        "id": new_client.id,
-        "name": new_client.name,
-        "email": new_client.email,
-    }, HTTPStatus.CREATED
+        return {
+            "id": new_client.id,
+            "name": new_client.name,
+            "email": new_client.email,
+        }, HTTPStatus.CREATED
+        
+    except IntegrityError as e:
+        error_origin = e.orig.diag.message_detail
+        error = re.findall("\((.*?)\)", error_origin)
+
+        return {"msg": f"{error[0].upper()} already registered"}, HTTPStatus.OK
+
+    except KeyError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_client.route("/login", methods=["POST"])
