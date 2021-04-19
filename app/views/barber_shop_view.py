@@ -46,36 +46,36 @@ def register_barber_shop():
         if request_data:
 
             barber_shop = Barber_shop(
-                name=request_data.get("name"),
-                phone_number=request_data.get("phone_number"),
-                cnpj=request_data.get("cnpj"),
-                email=request_data.get("email"),
+                name=request_data["name"],
+                phone_number=request_data["phone_number"],
+                cnpj=request_data["cnpj"],
+                email=request_data["email"],
                 user_type="barber_shop",
             )
             barber_shop.password = request_data["password"]
 
+            address = Address(
+                # barber_shop_id=barber_shop.id,
+                state=request_data["address"]["state"],
+                city=request_data["address"]["city"],
+                street_name=request_data["address"]["street_name"],
+                building_number=request_data["address"]["building_number"],
+                zip_code=request_data["address"]["zip_code"],
+            )
+
             session.add(barber_shop)
+            session.add(address)
+            session.commit()
+
+            address.barber_shop_id = barber_shop.id
+
             session.commit()
 
             barber_shop_serialized = BarberSchema().dump(barber_shop)
 
-            if "address" in request_data:
+            address_serializer = AddressSchema().dump(address)
 
-                address = Address(
-                    barber_shop_id=barber_shop.id,
-                    state=request_data["address"]["state"],
-                    city=request_data["address"]["city"],
-                    street_name=request_data["address"]["street_name"],
-                    building_number=request_data["address"]["building_number"],
-                    zip_code=request_data["address"]["zip_code"],
-                )
-
-                session.add(address)
-                session.commit()
-
-                address_serializer = AddressSchema().dump(address)
-
-                barber_shop_serialized["address"] = address_serializer
+            barber_shop_serialized["address"] = address_serializer
 
             return {"data": barber_shop_serialized}, HTTPStatus.CREATED
 
