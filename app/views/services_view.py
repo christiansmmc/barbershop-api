@@ -17,41 +17,45 @@ def register_services(barber_id):
         current_user = get_jwt()
         body = request.get_json()
         get_barber: Barbers = Barbers.query.filter_by(id=barber_id).first()
+        
+        print(f'######: {True if get_barber else False}')
+        if get_barber:
+            if (
+                current_user["user_id"] == get_barber.barber_shop_id
+                and current_user["user_type"] == "barber_shop"
+            ):
+                if "services" in body:
+                    for service in body["services"]:
+                        new_service: Services = Services(
+                            service_name=service["service_name"],
+                            service_price=service["service_price"],
+                        )
 
-        if (
-            current_user["user_id"] == get_barber.barber_shop_id
-            and current_user["user_type"] == "barber_shop"
-        ):
-            if "services" in body:
-                for service in body["services"]:
-                    new_service: Services = Services(
-                        service_name=service["service_name"],
-                        service_price=service["service_price"],
-                    )
+                        get_barber.service_list.append(new_service)
 
-                    get_barber.service_list.append(new_service)
+                    session.add(get_barber)
+                    session.commit()
 
-                session.add(get_barber)
-                session.commit()
+                    services_serialized = [
+                        ServicesSchema().dump(s) for s in get_barber.service_list
+                    ]
 
-                services_serialized = [
-                    ServicesSchema().dump(s) for s in get_barber.service_list
-                ]
-
-                return {
-                    "data": {
-                        "barber_name": get_barber.name,
-                        "service": services_serialized,
+                    return {
+                        "data": {
+                            "barber_name": get_barber.name,
+                            "service": services_serialized,
+                        }
                     }
-                }
+
+                else:
+                    return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
             else:
-                return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
-
+                return {
+                    "msg": "You don't have permission to do this"
+                }, HTTPStatus.UNAUTHORIZED
         else:
-            return {
-                "msg": "You don't have permission to do this"
-            }, HTTPStatus.UNAUTHORIZED
+            return {"msg": "Wrong barber ID"}, HTTPStatus.BAD_REQUEST
 
     except KeyError:
         return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST

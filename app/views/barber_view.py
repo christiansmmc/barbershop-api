@@ -46,7 +46,7 @@ def register_barber(barber_shop_id):
             barbershop = Barber_shop.query.filter_by(id=barber_shop_id).first()
 
             return {
-                "data": {"barber name": new_barber.name, "barbershop name": barbershop.name}
+                "data": {"barber_name": new_barber.name, "barbershop_name": barbershop.name}
             }, HTTPStatus.CREATED
 
         else:
@@ -103,8 +103,8 @@ def get_barbers(barbershop_id):
         for barber in barbers:
             barber_data = {}
 
-            barber_data["barber name"] = barber.name
-            barber_data["barber id"] = barber.id
+            barber_data["barber_name"] = barber.name
+            barber_data["barber_id"] = barber.id
 
             barber_data["services"] = [
                 ServicesSchema().dump(service) for service in barber.service_list
