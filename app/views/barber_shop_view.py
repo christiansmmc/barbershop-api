@@ -43,26 +43,31 @@ def get_barbershop(barbershop_id):
 
     barbershop = Barber_shop.query.get(barbershop_id)
 
-    return_data = BarberSchema().dump(barbershop)
+    if barbershop:
 
-    barbers_serialized = []
+        return_data = BarberSchema().dump(barbershop)
 
-    for barber in barbershop.barber_list:
+        barbers_serialized = []
 
-        to_append = BarbersSchema().dump(barber)
+        for barber in barbershop.barber_list:
 
-        services = []
+            to_append = BarbersSchema().dump(barber)
 
-        for service in barber.service_list:
-            services.append(ServicesSchema().dump(service))
+            services = []
 
-        to_append["services"] = services
+            for service in barber.service_list:
+                services.append(ServicesSchema().dump(service))
 
-        barbers_serialized.append(to_append)
+            to_append["services"] = services
 
-    return_data["barbers"] = barbers_serialized
+            barbers_serialized.append(to_append)
 
-    return {"data": return_data}
+        return_data["barbers"] = barbers_serialized
+
+        return {"data": return_data}
+
+    else:
+        return {"msg": "Wrong barbershop ID"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_barber_shop.route("/register", methods=["POST"])
