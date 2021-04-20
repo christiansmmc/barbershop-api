@@ -13,6 +13,7 @@ class Barber_shop(db.Model):
     password_hash = db.Column(db.String, nullable=True, unique=False)
     user_type = db.Column(db.String(30), nullable=False, unique=False)
     address_list = db.relationship("Address", uselist=False, backref="barber_shop")
+    barber_list = db.relationship("Barbers", backref="barber_shop")
 
     @property
     def password(self):

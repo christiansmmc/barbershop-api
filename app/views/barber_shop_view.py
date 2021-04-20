@@ -4,6 +4,8 @@ from app.models.barber_shop_model import Barber_shop
 from app.models.address import Address
 from app.serializers.barber_shop_serializer import BarberSchema
 from app.serializers.address_serializer import AddressSchema
+from app.serializers.barber_serializer import BarbersSchema
+from app.serializers.service_serializer import ServicesSchema
 from flask import jsonify
 from flask_jwt_extended import get_jwt, jwt_required, create_access_token
 from sqlalchemy.exc import IntegrityError
@@ -34,6 +36,33 @@ def barber_shop():
         return {"data": all_barbershops}
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@bp_barber_shop.route("/<int:barbershop_id>", methods=["GET"])
+def get_barbershop(barbershop_id):
+
+    barbershop = Barber_shop.query.get(barbershop_id)
+
+    return_data = BarberSchema().dump(barbershop)
+
+    barbers_serialized = []
+
+    for barber in barbershop.barber_list:
+
+        to_append = BarbersSchema().dump(barber)
+
+        services = []
+
+        for service in barber.service_list:
+            services.append(ServicesSchema().dump(service))
+
+        to_append["services"] = services
+
+        barbers_serialized.append(to_append)
+
+    return_data["barbers"] = barbers_serialized
+
+    return {"data": return_data}
 
 
 @bp_barber_shop.route("/register", methods=["POST"])
@@ -90,23 +119,6 @@ def register_barber_shop():
 
     except KeyError:
         return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
-
-
-@bp_barber_shop.route("/<int:barber_shop_id>", methods=["DELETE"])
-@jwt_required()
-def delete_barber_shop(barber_shop_id):
-    current_user = get_jwt()
-
-    if (
-        current_user["user_id"] == barber_shop_id
-        and current_user["user_type"] == "barber_shop"
-    ):
-        session = current_app.db.session
-        Barber_shop.query.filter_by(id=barber_shop_id).delete()
-        session.commit()
-        return {}, HTTPStatus.NO_CONTENT
-
-    return {"msg": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
 
 
 @bp_barber_shop.route("/login", methods=["POST"])
@@ -188,3 +200,20 @@ def update_barber_Shop(barbershop_id):
 
     else:
         return {"msg": "Wrong barbershop ID or token"}, HTTPStatus.FORBIDDEN
+
+
+@bp_barber_shop.route("/<int:barber_shop_id>", methods=["DELETE"])
+@jwt_required()
+def delete_barber_shop(barber_shop_id):
+    current_user = get_jwt()
+
+    if (
+        current_user["user_id"] == barber_shop_id
+        and current_user["user_type"] == "barber_shop"
+    ):
+        session = current_app.db.session
+        Barber_shop.query.filter_by(id=barber_shop_id).delete()
+        session.commit()
+        return {}, HTTPStatus.NO_CONTENT
+
+    return {"msg": "You don't have permission to do this"}, HTTPStatus.UNAUTHORIZED
