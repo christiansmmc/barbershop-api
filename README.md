@@ -1,6 +1,8 @@
 # About
 
-...
+### This is the backend api for a barbershop application - The application is based on connecting barbershops to people who want to schedule a time to get a haircut !
+
+<br/>
 
 # Routes
 
@@ -20,7 +22,7 @@
 
 | Route                                     | Method | Description                          |
 | ----------------------------------------- | ------ | ------------------------------------ |
-| /appointments/<barbershop_id>             | GET    | Get all appointments from barbershop |
+| /appointments/barbershop/<barbershop_id>  | GET    | Get all appointments from barbershop |
 | /appointments/<barbershop_id>/<barber_id> | GET    | Get all appointments from barber     |
 
 <br/>
@@ -30,8 +32,8 @@
 | Route                 | Method | Description                  |
 | --------------------- | ------ | ---------------------------- |
 | /barber_shop          | GET    | Get all barbershop registred |
-| /barber_shop/register | POST   | Register as barbershop       |
 | /barber_shop/login    | POST   | Login as barbershop          |
+| /barber_shop/register | POST   | Register as barbershop       |
 
 <br/>
 
@@ -70,11 +72,11 @@
 
 ### Appointments
 
-| Route                          | Method | Description                  |
-| ------------------------------ | ------ | ---------------------------- |
-| /appointments                  | POST   | Create appointment           |
-| /appointments/<appointment_id> | PATCH  | Updata data from appointment |
-| /appointments/<appointment_id> | PATCH  | Updata data from appointment |
+| Route                                 | Method | Description                  |
+| ------------------------------------- | ------ | ---------------------------- |
+| /appointments                         | POST   | Create appointment           |
+| /appointments/<appointment_id>        | PATCH  | Updata data from appointment |
+| /appointments/client/<appointment_id> | PATCH  | Updata data from appointment |
 
 <br/>
 
@@ -91,8 +93,8 @@
 
 | Route                            | Method | Description                   |
 | -------------------------------- | ------ | ----------------------------- |
-| /barber/register/<barbershop_id> | POST   | Create barber for barbershop  |
 | /barber/<barber_id>              | DELETE | Delete barber from barbershop |
+| /barber/register/<barbershop_id> | POST   | Create barber for barbershop  |
 
 <br/>
 
