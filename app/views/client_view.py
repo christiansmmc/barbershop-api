@@ -28,6 +28,7 @@ def create_client():
             return {"msg": "phone_number already registered"}, HTTPStatus.BAD_REQUEST
 
         name = body["name"]
+        password = body["password"]
         user_type = "client"
 
         new_client = Client(
