@@ -17,10 +17,17 @@ def create_client():
 
         body = request.get_json()
 
+        if not Client.query.filter_by(email=body["email"]).first():
+            email = body["email"]
+        else:
+            return {"msg": "email already registered"}, HTTPStatus.BAD_REQUEST
+
+        if not Client.query.filter_by(phone_number=body["phone_number"]).first():
+            phone_number = body["phone_number"]
+        else:
+            return {"msg": "phone_number already registered"}, HTTPStatus.BAD_REQUEST
+
         name = body["name"]
-        email = body["email"]
-        password = body["password"]
-        phone_number = body["phone_number"]
         user_type = "client"
 
         new_client = Client(
@@ -40,12 +47,6 @@ def create_client():
             "name": new_client.name,
             "email": new_client.email,
         }, HTTPStatus.CREATED
-        
-    except IntegrityError as e:
-        error_origin = e.orig.diag.message_detail
-        error = re.findall("\((.*?)\)", error_origin)
-
-        return {"msg": f"{error[0].upper()} already registered"}, HTTPStatus.OK
 
     except KeyError:
         return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST

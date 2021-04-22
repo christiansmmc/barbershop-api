@@ -8,7 +8,7 @@ from app.serializers.barber_serializer import BarbersSchema
 from app.serializers.service_serializer import ServicesSchema
 from flask import jsonify
 from flask_jwt_extended import get_jwt, jwt_required, create_access_token
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
 import re
 
 bp_barber_shop = Blueprint("bp_barber_shop", __name__, url_prefix="/barber_shop")
@@ -78,14 +78,36 @@ def register_barber_shop():
         request_data = request.get_json()
 
         if request_data:
+            if not Barber_shop.query.filter_by(name=request_data["name"]).first():
+                name = request_data["name"]
+            else:
+                raise NameError("name")
+
+            if not Barber_shop.query.filter_by(
+                phone_number=request_data["phone_number"]
+            ).first():
+                phone_number = request_data["phone_number"]
+            else:
+                raise NameError("phone_number")
+
+            if not Barber_shop.query.filter_by(cnpj=request_data["cnpj"]).first():
+                cnpj = request_data["cnpj"]
+            else:
+                raise NameError("cnpj")
+
+            if not Barber_shop.query.filter_by(email=request_data["email"]).first():
+                email = request_data["email"]
+            else:
+                raise NameError("email")
 
             barber_shop = Barber_shop(
-                name=request_data["name"],
-                phone_number=request_data["phone_number"],
-                cnpj=request_data["cnpj"],
-                email=request_data["email"],
+                name=name,
+                phone_number=phone_number,
+                cnpj=cnpj,
+                email=email,
                 user_type="barber_shop",
             )
+
             barber_shop.password = request_data["password"]
 
             address = Address(
@@ -116,13 +138,19 @@ def register_barber_shop():
             return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
     except IntegrityError as e:
-
         error_origin = e.orig.diag.message_detail
         error = re.findall("\((.*?)\)", error_origin)
 
         return {"msg": f"{error[0].upper()} already registered"}, HTTPStatus.OK
 
     except KeyError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
+
+    except NameError as e:
+        unique = e.args[0]
+        return {"msg": f"{unique} already registered"}, HTTPStatus.BAD_REQUEST
+
+    except DataError as e:
         return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
 
