@@ -19,6 +19,8 @@ bp_appointments = Blueprint("appointments_views", __name__, url_prefix="/appoint
     methods=["GET"],
 )
 def all_barbershop_appointments(barbershop_id):
+    all_appointments = Appointments.query.filter_by(barber_shop_id=barbershop_id).all()
+    
     result_list = []
 
     for appointment in all_appointments:
