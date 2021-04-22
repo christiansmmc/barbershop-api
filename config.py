@@ -20,6 +20,7 @@ class TestConfig(Config):
 
 config_selector = {
     "development": DevelopmentConfig,
+    "production": DevelopmentConfig,
     "test": TestConfig,
 }
 

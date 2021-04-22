@@ -7,5 +7,5 @@ class ServicesSchema(ma.SQLAlchemySchema):
         model = Services
 
     id = ma.auto_field()
-    service_name = ma.auto_field(data_key="service name")
-    service_price = ma.auto_field(data_key="service price")
+    service_name = ma.auto_field(data_key="service_name")
+    service_price = ma.auto_field(data_key="service_price")
