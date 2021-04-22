@@ -11,7 +11,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    SQLALCHEMY_DATABASE_URI = getenv("SQLALCHEMY_DATABASE_URI")
+    SQLALCHEMY_DATABASE_URI = getenv("DATABASE_URL_UPDATED")
 
 
 class TestConfig(Config):
