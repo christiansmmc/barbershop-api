@@ -111,6 +111,7 @@ def client_appointments(client_id):
         for appointment in all_appointments:
             appointment_data = {}
             barber = {}
+            current_barbershop: Barber_shop = Barber_shop.query.filter_by(id=appointment.barber_shop_id).first()
             current_barber = Barbers.query.filter_by(id=appointment.barber_id).first()
             barber["id"] = current_barber.id
             barber["name"] = current_barber.name
@@ -121,6 +122,7 @@ def client_appointments(client_id):
             service["service_name"] = current_service.service_name
             service["service_price"] = current_service.service_price
 
+            appointment_data["barbershop"] = current_barbershop.name
             appointment_data["barber"] = barber
             appointment_data["service"] = service
             appointment_data["date_time"] = appointment.date_time
