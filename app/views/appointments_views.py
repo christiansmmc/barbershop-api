@@ -103,7 +103,8 @@ def client_appointments(client_id):
             service["id"] = current_service.id
             service["service_name"] = current_service.service_name
             service["service_price"] = current_service.service_price
-
+            
+            appointment_data["appointment_id"] = appointment.id
             appointment_data["barbershop"] = current_barbershop.name
             appointment_data["barber"] = barber
             appointment_data["service"] = service
