@@ -52,7 +52,6 @@ def all_barbershop_appointments(barbershop_id):
 
 
 @bp_appointments.route("/barbershop/<int:barbershop_id>/<int:id_barber>", methods=["GET"])
-@jwt_required()
 def barber_appointments(barbershop_id, id_barber):
     all_appointments = Appointments.query.filter_by(
         barber_shop_id=barbershop_id, barber_id=id_barber
