@@ -77,28 +77,33 @@ def register_barber_shop():
 
         request_data = request.get_json()
 
+        error_list = []
+
         if request_data:
             if not Barber_shop.query.filter_by(name=request_data["name"]).first():
                 name = request_data["name"]
             else:
-                raise NameError("name")
+                error_list.append("name")
 
             if not Barber_shop.query.filter_by(
                 phone_number=request_data["phone_number"]
             ).first():
                 phone_number = request_data["phone_number"]
             else:
-                raise NameError("phone_number")
+                error_list.append("phone_number")
 
             if not Barber_shop.query.filter_by(cnpj=request_data["cnpj"]).first():
                 cnpj = request_data["cnpj"]
             else:
-                raise NameError("cnpj")
+                error_list.append("cnpj")
 
             if not Barber_shop.query.filter_by(email=request_data["email"]).first():
                 email = request_data["email"]
             else:
-                raise NameError("email")
+                error_list.append("email")
+
+            if error_list:
+                raise NameError(error_list)
 
             barber_shop = Barber_shop(
                 name=name,
@@ -148,9 +153,13 @@ def register_barber_shop():
 
     except NameError as e:
         unique = e.args[0]
-        return {"msg": f"{unique} already registered"}, HTTPStatus.BAD_REQUEST
+        errors = ""
+        for error in unique:
+            errors = errors + f"{error}, "
 
-    except DataError as e:
+        return {"msg": f"{errors}already registered"}, HTTPStatus.BAD_REQUEST
+
+    except DataError:
         return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
 

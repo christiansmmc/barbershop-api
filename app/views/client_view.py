@@ -4,7 +4,7 @@ from http import HTTPStatus
 from flask_jwt_extended import get_jwt, jwt_required, create_access_token
 from app.models.client import Client
 from http import HTTPStatus
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
 import re
 
 bp_client = Blueprint("bp_client", __name__, url_prefix="/client")
@@ -17,15 +17,20 @@ def create_client():
 
         body = request.get_json()
 
+        error_list = []
+
         if not Client.query.filter_by(email=body["email"]).first():
             email = body["email"]
         else:
-            return {"msg": "email already registered"}, HTTPStatus.BAD_REQUEST
+            error_list.append("email")
 
         if not Client.query.filter_by(phone_number=body["phone_number"]).first():
             phone_number = body["phone_number"]
         else:
-            return {"msg": "phone_number already registered"}, HTTPStatus.BAD_REQUEST
+            error_list.append("phone_number")
+
+        if error_list:
+            raise NameError(error_list)
 
         name = body["name"]
         password = body["password"]
@@ -51,6 +56,17 @@ def create_client():
 
     except KeyError:
         return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
+
+    except DataError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
+
+    except NameError as e:
+        unique = e.args[0]
+        errors = ""
+        for error in unique:
+            errors = errors + f"{error}, "
+
+        return {"msg": f"{errors}already registered"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_client.route("/login", methods=["POST"])
