@@ -18,84 +18,66 @@ bp_appointments = Blueprint("appointments_views", __name__, url_prefix="/appoint
     "/barbershop/<int:barbershop_id>",
     methods=["GET"],
 )
-@jwt_required()
 def all_barbershop_appointments(barbershop_id):
-    current_user = get_jwt()
-    
-    if current_user["user_id"] == barbershop_id and current_user["user_type"] == "barber_shop":     
-        all_appointments = Appointments.query.filter_by(barber_shop_id=barbershop_id).all()
+    result_list = []
 
-        result_list = []
+    for appointment in all_appointments:
+        appointment_data = {}
+        client = {}
+        current_client = Client.query.filter_by(id=appointment.client_id).first()
+        client["id"] = current_client.id
+        client["name"] = current_client.name
+        client["phone_number"] = current_client.phone_number
 
-        for appointment in all_appointments:
-            appointment_data = {}
-            client = {}
-            current_client = Client.query.filter_by(id=appointment.client_id).first()
-            client["id"] = current_client.id
-            client["name"] = current_client.name
-            client["phone_number"] = current_client.phone_number
+        service = {}
+        current_service = Services.query.filter_by(id=appointment.services_id).first()
+        service["id"] = current_service.id
+        service["service_name"] = current_service.service_name
+        service["service_price"] = current_service.service_price
 
-            service = {}
-            current_service = Services.query.filter_by(id=appointment.services_id).first()
-            service["id"] = current_service.id
-            service["service_name"] = current_service.service_name
-            service["service_price"] = current_service.service_price
+        barber = {}
+        current_barber = Barbers.query.filter_by(id=appointment.barber_id).first()
+        barber["id"] = current_barber.id
+        barber["name"] = current_barber.name
 
-            barber = {}
-            current_barber = Barbers.query.filter_by(id=appointment.barber_id).first()
-            barber["id"] = current_barber.id
-            barber["name"] = current_barber.name
+        appointment_data["client"] = client
+        appointment_data["service"] = service
+        appointment_data["barber"] = barber
+        appointment_data["date_time"] = appointment.date_time
+        result_list.append(appointment_data)
 
-            appointment_data["client"] = client
-            appointment_data["service"] = service
-            appointment_data["barber"] = barber
-            appointment_data["date_time"] = appointment.date_time
-            result_list.append(appointment_data)
-
-        return {"data": result_list}, HTTPStatus.OK
-    else:
-        return {
-                "error": "You don't have permission to do this"
-            }, HTTPStatus.UNAUTHORIZED
-
+    return {"data": result_list}, HTTPStatus.OK
 
 
 @bp_appointments.route("/barbershop/<int:barbershop_id>/<int:id_barber>", methods=["GET"])
 @jwt_required()
 def barber_appointments(barbershop_id, id_barber):
-    current_user = get_jwt()
-    
-    if current_user["user_id"] == barbershop_id and current_user["user_type"] == "barber_shop":
-        all_appointments = Appointments.query.filter_by(
-            barber_shop_id=barbershop_id, barber_id=id_barber
-        ).all()
+    all_appointments = Appointments.query.filter_by(
+        barber_shop_id=barbershop_id, barber_id=id_barber
+    ).all()
 
-        result_list = []
+    result_list = []
 
-        for appointment in all_appointments:
-            appointment_data = {}
-            client = {}
-            current_client = Client.query.filter_by(id=appointment.client_id).first()
-            client["id"] = current_client.id
-            client["name"] = current_client.name
-            client["phone_number"] = current_client.phone_number
+    for appointment in all_appointments:
+        appointment_data = {}
+        client = {}
+        current_client = Client.query.filter_by(id=appointment.client_id).first()
+        client["id"] = current_client.id
+        client["name"] = current_client.name
+        client["phone_number"] = current_client.phone_number
 
-            service = {}
-            current_service = Services.query.filter_by(id=appointment.services_id).first()
-            service["id"] = current_service.id
-            service["service_name"] = current_service.service_name
-            service["service_price"] = current_service.service_price
+        service = {}
+        current_service = Services.query.filter_by(id=appointment.services_id).first()
+        service["id"] = current_service.id
+        service["service_name"] = current_service.service_name
+        service["service_price"] = current_service.service_price
 
-            appointment_data["client"] = client
-            appointment_data["service"] = service
-            appointment_data["date_time"] = appointment.date_time
-            result_list.append(appointment_data)
+        appointment_data["client"] = client
+        appointment_data["service"] = service
+        appointment_data["date_time"] = appointment.date_time
+        result_list.append(appointment_data)
 
-        return {"data": result_list}, HTTPStatus.OK
-    else:
-        return {
-                "error": "You don't have permission to do this"
-            }, HTTPStatus.UNAUTHORIZED
+    return {"data": result_list}, HTTPStatus.OK
 
 
 @bp_appointments.route("/client/<int:client_id>", methods=["GET"])
