@@ -7,6 +7,7 @@ from app.models.client import Client
 from app.models.barbers import Barbers
 from app.models.barber_shop_model import Barber_shop
 from app.serializers.appointments_serializer import AppointmentsSchema
+
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required, get_jwt
 
@@ -131,7 +132,9 @@ def create_appointment():
             session = current_app.db.session
 
             result = Services.query.filter_by(id=data["services_id"]).first()
-
+            barber_shop = Barber_shop.query.filter_by(id=data["services_id"]).first()
+            barber = Barbers.query.filter_by(id=data["services_id"]).first()
+    
             appointment = Appointments(
                 barber_id=data["barber_id"],
                 barber_shop_id=data["barber_shop_id"],
@@ -139,15 +142,17 @@ def create_appointment():
                 client_id=current_user["user_id"],
                 date_time=data["date_time"],
             )
-
+    
             session.add(appointment)
             session.commit()
-
+    
             return {
                 "data": {
                     "date": appointment.date_time,
                     "service": result.service_name,
                     "price": result.service_price,
+                    "barber_shop": barber_shop.name,
+                    "barber": barber.name
                 }
             }, HTTPStatus.CREATED
 
