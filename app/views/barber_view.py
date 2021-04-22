@@ -46,7 +46,7 @@ def register_barber(barber_shop_id):
             barbershop = Barber_shop.query.filter_by(id=barber_shop_id).first()
 
             return {
-                "data": {"barber_name": new_barber.name, "barbershop_name": barbershop.name}
+                "data": {"barber_id": new_barber.id, "barber_name": new_barber.name, "barbershop_name": barbershop.name}
             }, HTTPStatus.CREATED
 
         else:
