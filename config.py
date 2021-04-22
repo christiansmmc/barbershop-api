@@ -15,7 +15,7 @@ class DevelopmentConfig(Config):
 
 
 class TestConfig(Config):
-    ...
+    pass
 
 
 config_selector = {

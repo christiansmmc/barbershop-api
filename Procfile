@@ -1,1 +1,1 @@
-web: gunicorn -w 3 'wsgi:application'
+web: gunicorn -w 3 "wsgi:application"
