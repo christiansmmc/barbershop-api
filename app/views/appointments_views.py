@@ -46,6 +46,7 @@ def all_barbershop_appointments(barbershop_id):
         appointment_data["client"] = client
         appointment_data["service"] = service
         appointment_data["barber"] = barber
+        appointment_data["appointment_id"] = appointment.id
         appointment_data["date_time"] = appointment.date_time
         result_list.append(appointment_data)
 
