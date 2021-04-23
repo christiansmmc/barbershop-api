@@ -71,30 +71,37 @@ def create_client():
 
 @bp_client.route("/login", methods=["POST"])
 def login_client():
-    body = request.get_json()
+    try:
+        body = request.get_json()
 
-    login_client = Client.query.filter_by(email=body["email"]).first()
+        login_client = Client.query.filter_by(email=body["email"]).first()
 
-    if login_client != None:
+        if login_client != None:
 
-        hash_validation = login_client.check_password(body.get("password"))
+            hash_validation = login_client.check_password(body.get("password"))
 
-        if hash_validation:
+            if hash_validation:
 
-            additional_claims = {
-                "user_type": "client",
-                "user_id": login_client.id,
-            }
-            access_token = create_access_token(
-                identity=body["email"], additional_claims=additional_claims
-            )
+                additional_claims = {
+                    "user_type": "client",
+                    "user_id": login_client.id,
+                }
+                access_token = create_access_token(
+                    identity=body["email"], additional_claims=additional_claims
+                )
 
-            return {
-                "user ID": login_client.id,
-                "acess token": access_token,
-            }, HTTPStatus.CREATED
+                return {
+                    "user ID": login_client.id,
+                    "acess token": access_token,
+                }, HTTPStatus.CREATED
 
-    return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+        return {"data": "Wrong email or password"}, HTTPStatus.FORBIDDEN
+
+    except KeyError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
+
+    except TypeError:
+        return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
 
 @bp_client.route("/<int:user_id>", methods=["PATCH"])
