@@ -1,6 +1,7 @@
 from flask import Flask
 from os import getenv
 from datetime import timedelta
+from dotenv import load_dotenv
 
 
 class Config:
@@ -15,6 +16,9 @@ class DevelopmentConfig(Config):
 
 
 class TestConfig(Config):
+    load_dotenv()
+    JWT_SECRET_KEY = getenv("SECRET_KEY")
+    TESTING = True
     SQLALCHEMY_DATABASE_URI = getenv("SQLALCHEMY_DATABASE_TEST_URI")
 
 

@@ -186,8 +186,8 @@ def login_barber_shop():
 
                 return {
                     "data": {
-                        "barbershop ID": user_to_login.id,
-                        "acess_token": access_token,
+                        "barbershop_id": user_to_login.id,
+                        "access_token": access_token,
                     }
                 }, HTTPStatus.CREATED
 
