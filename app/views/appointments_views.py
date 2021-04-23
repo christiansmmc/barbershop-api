@@ -139,49 +139,60 @@ def create_appointment(barbershop_id):
         service = Services.query.filter_by(id=data["services_id"]).first()
 
         if barbershop != None and barber != None and service != None:
+            if barber.barber_shop_id == barbershop_id:
+                if service.barber_id == barber.id:
 
-            available_time = Appointments.query.filter_by(
-                barber_shop_id=barbershop_id,
-                barber_id=barber.id,
-                date_time=data["date_time"],
-            ).first()
-
-            if not available_time:
-                if current_user["user_type"] == "client":
-
-                    session = current_app.db.session
-
-                    result = Services.query.filter_by(id=data["services_id"]).first()
-                    barber = Barbers.query.filter_by(id=data["barber_id"]).first()
-
-                    appointment = Appointments(
-                        barber_id=data["barber_id"],
+                    available_time = Appointments.query.filter_by(
                         barber_shop_id=barbershop_id,
-                        services_id=data["services_id"],
-                        client_id=current_user["user_id"],
+                        barber_id=barber.id,
                         date_time=data["date_time"],
-                    )
+                    ).first()
 
-                    session.add(appointment)
-                    session.commit()
+                    if not available_time:
+                        if current_user["user_type"] == "client":
 
-                    return {
-                        "data": {
-                            "id": appointment.id,
-                            "date": appointment.date_time,
-                            "service": result.service_name,
-                            "price": result.service_price,
-                            "barber_shop": barbershop.name,
-                            "barber": barber.name,
-                        }
-                    }, HTTPStatus.CREATED
+                            session = current_app.db.session
+
+                            result = Services.query.filter_by(
+                                id=data["services_id"]
+                            ).first()
+                            barber = Barbers.query.filter_by(
+                                id=data["barber_id"]
+                            ).first()
+
+                            appointment = Appointments(
+                                barber_id=data["barber_id"],
+                                barber_shop_id=barbershop_id,
+                                services_id=data["services_id"],
+                                client_id=current_user["user_id"],
+                                date_time=data["date_time"],
+                            )
+
+                            session.add(appointment)
+                            session.commit()
+
+                            return {
+                                "data": {
+                                    "id": appointment.id,
+                                    "date": appointment.date_time,
+                                    "service": result.service_name,
+                                    "price": result.service_price,
+                                    "barber_shop": barbershop.name,
+                                    "barber": barber.name,
+                                }
+                            }, HTTPStatus.CREATED
+                        else:
+                            return {
+                                "msg": "You don't have permission to do this"
+                            }, HTTPStatus.UNAUTHORIZED
+                    else:
+                        return {
+                            "msg": "This time is not available"
+                        }, HTTPStatus.CONFLICT
                 else:
-                    return {
-                        "msg": "You don't have permission to do this"
-                    }, HTTPStatus.UNAUTHORIZED
+                    return {"msg": "This barber does not have this service"}
             else:
-                return {"msg": "This time is not available"}, HTTPStatus.CONFLICT
-
+                return {"msg": "This barbershop does not have this barber"}
         else:
             return {
                 "msg": "Wrong barbershop ID, service ID or barber ID"
