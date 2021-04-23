@@ -74,13 +74,13 @@
 
 | Route                                 | Method | Description                  |
 | ------------------------------------- | ------ | ---------------------------- |
-| /appointments                         | POST   | Create appointment           |
+| /appointments/<barbershop_id>         | POST   | Create appointment           |
 | /appointments/<appointment_id>        | PATCH  | Updata data from appointment |
 | /appointments/client/<appointment_id> | PATCH  | Updata data from appointment |
 
 <br/>
 
-### Appointments
+### Barbershop
 
 | Route                       | Method | Description                 |
 | --------------------------- | ------ | --------------------------- |
@@ -202,7 +202,6 @@
 ```
 {
   "barber_id": <String, not null>,
-  "barber_shop_id": <String, not null>,
   "services_id": <String, not null>,
   "date_time": "%d-%m-%y %h:%m"
 }

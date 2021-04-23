@@ -21,7 +21,7 @@ bp_appointments = Blueprint("appointments_views", __name__, url_prefix="/appoint
 )
 def all_barbershop_appointments(barbershop_id):
     all_appointments = Appointments.query.filter_by(barber_shop_id=barbershop_id).all()
-    
+
     result_list = []
 
     for appointment in all_appointments:
@@ -52,7 +52,9 @@ def all_barbershop_appointments(barbershop_id):
     return {"data": result_list}, HTTPStatus.OK
 
 
-@bp_appointments.route("/barbershop/<int:barbershop_id>/<int:id_barber>", methods=["GET"])
+@bp_appointments.route(
+    "/barbershop/<int:barbershop_id>/<int:id_barber>", methods=["GET"]
+)
 def barber_appointments(barbershop_id, id_barber):
     all_appointments = Appointments.query.filter_by(
         barber_shop_id=barbershop_id, barber_id=id_barber
@@ -86,8 +88,8 @@ def barber_appointments(barbershop_id, id_barber):
 @jwt_required()
 def client_appointments(client_id):
     current_user = get_jwt()
-    
-    if current_user["user_id"] == client_id and current_user["user_type"] == "client":     
+
+    if current_user["user_id"] == client_id and current_user["user_type"] == "client":
         all_appointments = Appointments.query.filter_by(client_id=client_id).all()
 
         result_list = []
@@ -95,17 +97,21 @@ def client_appointments(client_id):
         for appointment in all_appointments:
             appointment_data = {}
             barber = {}
-            current_barbershop: Barber_shop = Barber_shop.query.filter_by(id=appointment.barber_shop_id).first()
+            current_barbershop: Barber_shop = Barber_shop.query.filter_by(
+                id=appointment.barber_shop_id
+            ).first()
             current_barber = Barbers.query.filter_by(id=appointment.barber_id).first()
             barber["id"] = current_barber.id
             barber["name"] = current_barber.name
 
             service = {}
-            current_service = Services.query.filter_by(id=appointment.services_id).first()
+            current_service = Services.query.filter_by(
+                id=appointment.services_id
+            ).first()
             service["id"] = current_service.id
             service["service_name"] = current_service.service_name
             service["service_price"] = current_service.service_price
-            
+
             appointment_data["appointment_id"] = appointment.id
             appointment_data["barbershop"] = current_barbershop.name
             appointment_data["barber"] = barber
@@ -114,52 +120,73 @@ def client_appointments(client_id):
             result_list.append(appointment_data)
 
         return {"data": result_list}, HTTPStatus.OK
-    
+
     else:
         return {
-                "error": "You don't have permission to do this"
-            }, HTTPStatus.UNAUTHORIZED
+            "error": "You don't have permission to do this"
+        }, HTTPStatus.UNAUTHORIZED
 
 
-@bp_appointments.route("", methods=["POST"])
+@bp_appointments.route("/<int:barbershop_id>", methods=["POST"])
 @jwt_required()
-def create_appointment():
+def create_appointment(barbershop_id):
     try:
         current_user = get_jwt()
         data = request.get_json()
 
-        if current_user["user_type"] == "client":
-            session = current_app.db.session
+        barbershop = Barber_shop.query.filter_by(id=barbershop_id).first()
+        barber = Barbers.query.filter_by(id=data["barber_id"]).first()
+        service = Services.query.filter_by(id=data["services_id"]).first()
 
-            result = Services.query.filter_by(id=data["services_id"]).first()
-            barber_shop = Barber_shop.query.filter_by(id=data["barber_shop_id"]).first()
-            barber = Barbers.query.filter_by(id=data["barber_id"]).first()
-    
-            appointment = Appointments(
-                barber_id=data["barber_id"],
-                barber_shop_id=data["barber_shop_id"],
-                services_id=data["services_id"],
-                client_id=current_user["user_id"],
+        if barbershop != None and barber != None and service != None:
+
+            available_time = Appointments.query.filter_by(
+                barber_shop_id=barbershop_id,
+                barber_id=barber.id,
                 date_time=data["date_time"],
-            )
-    
-            session.add(appointment)
-            session.commit()
-    
-            return {
-                "data": {
-                    "date": appointment.date_time,
-                    "service": result.service_name,
-                    "price": result.service_price,
-                    "barber_shop": barber_shop.name,
-                    "barber": barber.name
-                }
-            }, HTTPStatus.CREATED
+            ).first()
+
+            if not available_time:
+                if current_user["user_type"] == "client":
+
+                    session = current_app.db.session
+
+                    result = Services.query.filter_by(id=data["services_id"]).first()
+                    barber = Barbers.query.filter_by(id=data["barber_id"]).first()
+
+                    appointment = Appointments(
+                        barber_id=data["barber_id"],
+                        barber_shop_id=barbershop_id,
+                        services_id=data["services_id"],
+                        client_id=current_user["user_id"],
+                        date_time=data["date_time"],
+                    )
+
+                    session.add(appointment)
+                    session.commit()
+
+                    return {
+                        "data": {
+                            "id": appointment.id,
+                            "date": appointment.date_time,
+                            "service": result.service_name,
+                            "price": result.service_price,
+                            "barber_shop": barbershop.name,
+                            "barber": barber.name,
+                        }
+                    }, HTTPStatus.CREATED
+                else:
+                    return {
+                        "msg": "You don't have permission to do this"
+                    }, HTTPStatus.UNAUTHORIZED
+            else:
+                return {"msg": "This time is not available"}, HTTPStatus.CONFLICT
 
         else:
             return {
-                "data": "You don't have permission to do this"
-            }, HTTPStatus.UNAUTHORIZED
+                "msg": "Wrong barbershop ID, service ID or barber ID"
+            }, HTTPStatus.BAD_REQUEST
+
     except KeyError:
         return {"msg": "Verify BODY content"}, HTTPStatus.BAD_REQUEST
 
