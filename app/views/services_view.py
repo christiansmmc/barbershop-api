@@ -17,8 +17,7 @@ def register_services(barber_id):
         current_user = get_jwt()
         body = request.get_json()
         get_barber: Barbers = Barbers.query.filter_by(id=barber_id).first()
-        
-        print(f'######: {True if get_barber else False}')
+
         if get_barber:
             if (
                 current_user["user_id"] == get_barber.barber_shop_id
