@@ -132,8 +132,8 @@ def create_appointment():
             session = current_app.db.session
 
             result = Services.query.filter_by(id=data["services_id"]).first()
-            barber_shop = Barber_shop.query.filter_by(id=data["services_id"]).first()
-            barber = Barbers.query.filter_by(id=data["services_id"]).first()
+            barber_shop = Barber_shop.query.filter_by(id=data["barber_shop_id"]).first()
+            barber = Barbers.query.filter_by(id=data["barber_id"]).first()
     
             appointment = Appointments(
                 barber_id=data["barber_id"],
