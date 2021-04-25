@@ -2,6 +2,9 @@
 
 ### This is the backend api for a barbershop application - The application is based on connecting barbershops to people who want to schedule a time to get a haircut !
 
+## URL to the API:
+[https://barbershop-api-staging.herokuapp.com/](https://barbershop-api-staging.herokuapp.com/)
+
 <br/>
 
 # Routes
